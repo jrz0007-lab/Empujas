@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMpujas - Descubre Retos Increíbles</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <span class="logo-icon">&#9878;</span>
+                <span class="logo-text">EMpujas</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="login.html" class="btn btn-outline">Iniciar Sesión</a>
+                <a href="register.html" class="btn btn-primary">Registrarse</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Descubre Retos Increíbles</h1>
+                <p class="hero-subtitle">Apoya a personas que se comprometen con metas inspiradoras. Ayúdalas a alcanzar su objetivo de financiación y mira cómo completan el reto con una prueba en video.</p>
+                <div class="hero-actions">
+                    <a href="register.html" class="btn btn-primary btn-lg">Únete Ahora</a>
+                    <a href="#challenges" class="btn btn-outline btn-lg">Explorar Retos</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="challenges" class="challenges-section">
+            <div class="container">
+                <h2>Retos Activos</h2>
+                <div id="estado" class="estado"></div>
+                <div id="challengesGrid" class="challenges-grid"></div>
+            </div>
+        </section>
+    </main>
+
+    <div id="detailModal" class="modal-overlay hidden">
+        <div class="modal-content modal-lg">
+            <button class="modal-close" id="closeDetail">&times;</button>
+            <div id="detailContent"></div>
+        </div>
+    </div>
+
+    <div id="donateModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close" id="closeDonate">&times;</button>
+            <div id="donateContent">
+                <h3>Apoya este Reto</h3>
+                <p class="donate-subtitle">Introduce la cantidad que quieres aportar</p>
+                <form id="donateForm">
+                    <input type="hidden" id="donateChallengeId">
+                    <div class="form-group">
+                        <label for="donorName">Tu Nombre</label>
+                        <input type="text" id="donorName" placeholder="Tu nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="donateAmount">Cantidad (&euro;)</label>
+                        <input type="number" id="donateAmount" placeholder="0.00" min="1" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Método de Pago</label>
+                        <div class="payment-options">
+                            <label class="payment-option">
+                                <input type="radio" name="payment" value="card" checked>
+                                <span>Tarjeta de Crédito/Débito</span>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="payment" value="paypal">
+                                <span>PayPal</span>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="payment" value="mobile">
+                                <span>Pago Móvil</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="card-details" id="cardDetails">
+                        <div class="form-group">
+                            <label for="cardNumber">Número de Tarjeta</label>
+                            <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cardName">Titular de la Tarjeta</label>
+                                <input type="text" id="cardName" placeholder="Juan Pérez">
+                            </div>
+                        </div>
+                        <div class="form-row form-row-3">
+                            <div class="form-group">
+                                <label for="expiry">Fecha de Caducidad</label>
+                                <input type="text" id="expiry" placeholder="MM/AA">
+                            </div>
+                            <div class="form-group">
+                                <label for="cvv">CVV</label>
+                                <input type="text" id="cvv" placeholder="123">
+                            </div>
+                        </div>
+                    </div>
+                    <p class="note">Nota: Esta pasarela de pago es ficticia. No se procesan pagos reales.</p>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" id="cancelDonate">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Confirmar Pago</button>
+                    </div>
+                </form>
+                <div id="donateResultado" class="donate-resultado"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="completeModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close" id="closeComplete">&times;</button>
+            <div id="completeContent">
+                <h3>Completar Reto</h3>
+                <p class="donate-subtitle">Sube la URL del video de prueba para marcar este reto como completado</p>
+                <form id="completeForm">
+                    <input type="hidden" id="completeChallengeId">
+                    <div class="form-group">
+                        <label for="videoUrl">URL del Video de Prueba</label>
+                        <input type="url" id="videoUrl" placeholder="https://..." required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" id="cancelComplete">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Marcar como Completado</button>
+                    </div>
+                </form>
+                <div id="completeResultado" class="donate-resultado"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

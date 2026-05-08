@@ -1,0 +1,62 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: challenge_app
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: challenge_db
+      DB_USER: root
+      DB_PASSWORD: root
+    networks:
+      - red_challenge
+
+  mysql:
+    image: mysql:8.0
+    container_name: challenge_mysql
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: challenge_db
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - red_challenge
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: challenge_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+    depends_on:
+      - mysql
+    networks:
+      - red_challenge
+
+volumes:
+  mysql_data:
+
+networks:
+  red_challenge:
+    driver: bridge

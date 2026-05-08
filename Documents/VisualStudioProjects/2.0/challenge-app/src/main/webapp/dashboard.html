@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel - EMpujas</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <span class="logo-icon">&#9878;</span>
+                <span class="logo-text">EMpujas</span>
+            </a>
+            <div class="nav-links">
+                <a href="create-challenge.html" class="btn btn-primary">Nuevo Reto</a>
+                <a href="/" class="btn btn-outline">Inicio</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container dashboard">
+        <div id="userInfo" class="user-info">
+            <div class="user-avatar">&#128100;</div>
+            <div>
+                <h2 id="dashboardUsername">Usuario</h2>
+                <p id="dashboardEmail">usuario@email.com</p>
+            </div>
+        </div>
+
+        <div id="summaryCards" class="summary-cards">
+            <div class="summary-card">
+                <div class="summary-icon created">&#128221;</div>
+                <div class="summary-number" id="totalCreated">0</div>
+                <div class="summary-label">Retos Creados</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon completed">&#9989;</div>
+                <div class="summary-number" id="totalCompleted">0</div>
+                <div class="summary-label">Retos Completados</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon raised">&#128176;</div>
+                <div class="summary-number" id="totalRaised">&euro;0</div>
+                <div class="summary-label">Fondos Recaudados</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="active">Retos Activos</button>
+            <button class="tab" data-tab="completed">Retos Completados</button>
+        </div>
+
+        <div id="tabContent" class="tab-content">
+            <div id="dashboardEstado" class="estado"></div>
+            <div id="dashboardGrid" class="challenges-grid"></div>
+        </div>
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
