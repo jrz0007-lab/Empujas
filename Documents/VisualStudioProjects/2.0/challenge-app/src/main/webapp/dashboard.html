@@ -13,14 +13,15 @@
                 <span class="logo-icon">&#9878;</span>
                 <span class="logo-text">EMpujas</span>
             </a>
-            <div class="nav-links">
-                <a href="create-challenge.html" class="btn btn-primary">Nuevo Reto</a>
+            <div class="nav-links" id="navLinks">
+                <a href="create-challenge.html" class="btn btn-primary">&#128640; Nuevo Reto</a>
                 <a href="/" class="btn btn-outline">Inicio</a>
             </div>
         </div>
     </nav>
 
     <main class="container dashboard">
+        <a href="/" class="btn btn-outline back-link">&#11013; Volver a Retos</a>
         <div id="userInfo" class="user-info">
             <div class="user-avatar">&#128100;</div>
             <div>
@@ -38,18 +39,24 @@
             <div class="summary-card">
                 <div class="summary-icon completed">&#9989;</div>
                 <div class="summary-number" id="totalCompleted">0</div>
-                <div class="summary-label">Retos Completados</div>
+                <div class="summary-label">Completados</div>
             </div>
             <div class="summary-card">
                 <div class="summary-icon raised">&#128176;</div>
                 <div class="summary-number" id="totalRaised">&euro;0</div>
                 <div class="summary-label">Fondos Recaudados</div>
             </div>
+            <div class="summary-card">
+                <div class="summary-icon favorites">&#128151;</div>
+                <div class="summary-number" id="totalFavorited">0</div>
+                <div class="summary-label">Favoritos</div>
+            </div>
         </div>
 
         <div class="tabs">
-            <button class="tab active" data-tab="active">Retos Activos</button>
-            <button class="tab" data-tab="completed">Retos Completados</button>
+            <button class="tab active" data-tab="active">&#128640; Activos</button>
+            <button class="tab" data-tab="completed">&#9989; Completados</button>
+            <button class="tab" data-tab="favorites">&#128151; Favoritos</button>
         </div>
 
         <div id="tabContent" class="tab-content">
