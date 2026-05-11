@@ -28,6 +28,7 @@ public class DatabaseInitializer implements ServletContextListener {
                 "creator_id INT NOT NULL, " +
                 "status ENUM('active', 'completed') DEFAULT 'active', " +
                 "video_url VARCHAR(500), " +
+                "image_url VARCHAR(500), " +
                 "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
                 "FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE CASCADE)");
 
@@ -39,14 +40,35 @@ public class DatabaseInitializer implements ServletContextListener {
                 "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
                 "FOREIGN KEY (challenge_id) REFERENCES challenges(id) ON DELETE CASCADE)");
 
-            stmt.executeUpdate("INSERT IGNORE INTO users (id, username, email, password) VALUES " +
-                "(1, 'demo_user', 'demo@example.com', '1234'), " +
-                "(2, 'challenger99', 'challenger@example.com', '1234')");
+            try { stmt.executeUpdate("ALTER TABLE challenges ADD COLUMN image_url VARCHAR(500)"); } catch (Exception ignored) {}
+            try { stmt.executeUpdate("ALTER TABLE challenges ADD COLUMN video_url VARCHAR(500)"); } catch (Exception ignored) {}
 
-            stmt.executeUpdate("INSERT IGNORE INTO challenges (id, title, description, goal_amount, current_amount, creator_id, status, video_url) VALUES " +
-                "(1, 'I will learn to play guitar in 30 days', 'I will practice guitar every day for 30 days and record my progress. Help me buy a guitar to start this journey!', 500.00, 320.00, 1, 'active', NULL), " +
-                "(2, 'Marathon of 42km in 3 months', 'I will train and complete a full marathon (42km) in 3 months. Every euro helps me buy proper running shoes and equipment!', 300.00, 450.00, 2, 'completed', 'https://www.youtube.com/embed/dQw4w9WgXcQ'), " +
-                "(3, 'Read 20 books in 6 months', 'I commit to reading 20 books in 6 months and writing a review for each one. Help me build my home library!', 200.00, 150.00, 1, 'active', NULL)");
+            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS favorites (" +
+                "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "user_id INT NOT NULL, " +
+                "challenge_id INT NOT NULL, " +
+                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE, " +
+                "FOREIGN KEY (challenge_id) REFERENCES challenges(id) ON DELETE CASCADE, " +
+                "UNIQUE KEY (user_id, challenge_id))");
+
+            stmt.executeUpdate("UPDATE users SET password = '1234' WHERE email IN ('demo@example.com', 'challenger@example.com')");
+            stmt.executeUpdate("INSERT INTO users (id, username, email, password) VALUES " +
+                "(1, 'demo_user', 'demo@example.com', '1234'), " +
+                "(2, 'challenger99', 'challenger@example.com', '1234') " +
+                "ON DUPLICATE KEY UPDATE password = VALUES(password)");
+
+            try {
+                stmt.executeUpdate("INSERT IGNORE INTO challenges (id, title, description, goal_amount, current_amount, creator_id, status, video_url, image_url) VALUES " +
+                    "(1, 'I will learn to play guitar in 30 days', 'I will practice guitar every day for 30 days and record my progress. Help me buy a guitar to start this journey!', 500.00, 320.00, 1, 'active', NULL, NULL), " +
+                    "(2, 'Marathon of 42km in 3 months', 'I will train and complete a full marathon (42km) in 3 months. Every euro helps me buy proper running shoes and equipment!', 300.00, 450.00, 2, 'completed', 'https://www.youtube.com/embed/dQw4w9WgXcQ', NULL), " +
+                    "(3, 'Read 20 books in 6 months', 'I commit to reading 20 books in 6 months and writing a review for each one. Help me build my home library!', 200.00, 150.00, 1, 'active', NULL, NULL)");
+            } catch (Exception ignored) {
+                stmt.executeUpdate("INSERT IGNORE INTO challenges (id, title, description, goal_amount, current_amount, creator_id, status, video_url) VALUES " +
+                    "(1, 'I will learn to play guitar in 30 days', 'I will practice guitar every day for 30 days and record my progress. Help me buy a guitar to start this journey!', 500.00, 320.00, 1, 'active', NULL), " +
+                    "(2, 'Marathon of 42km in 3 months', 'I will train and complete a full marathon (42km) in 3 months. Every euro helps me buy proper running shoes and equipment!', 300.00, 450.00, 2, 'completed', 'https://www.youtube.com/embed/dQw4w9WgXcQ'), " +
+                    "(3, 'Read 20 books in 6 months', 'I commit to reading 20 books in 6 months and writing a review for each one. Help me build my home library!', 200.00, 150.00, 1, 'active', NULL)");
+            }
 
             stmt.executeUpdate("INSERT IGNORE INTO donations (id, challenge_id, donor_name, amount) VALUES " +
                 "(1, 1, 'Alice', 50.00), " +
