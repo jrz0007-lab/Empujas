@@ -1,3 +1,12 @@
 {
-  "rootDirectory": "Documents/VisualStudioProjects/2.0/challenge-app"
+  "rootDirectory": "Documents/VisualStudioProjects/2.0/challenge-app",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "Dockerfile"
+  },
+  "deploy": {
+    "numReplicas": 1,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  }
 }
