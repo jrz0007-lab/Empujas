@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EMpujas - Descubre Retos Increíbles</title>
+    <title>EMpujas - Retos Increíbles</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -23,18 +23,18 @@
     <main>
         <section class="hero">
             <div class="hero-content">
-                <h1>Descubre Retos Increíbles</h1>
-                <p class="hero-subtitle">Apoya a personas que se comprometen con metas inspiradoras. Ayúdalas a alcanzar su objetivo de financiación y mira cómo completan el reto con una prueba en video.</p>
+                <h1>&#128293; Descubre Retos Increíbles</h1>
+                <p class="hero-subtitle">Apoya a personas que se comprometen con metas inspiradoras. Ayúdalas a alcanzar su objetivo y celebra sus logros.</p>
                 <div class="hero-actions">
-                    <a href="register.html" class="btn btn-primary btn-lg">Únete Ahora</a>
-                    <a href="#challenges" class="btn btn-outline btn-lg">Explorar Retos</a>
+                    <a href="register.html" class="btn btn-primary btn-lg">&#127881; Únete Ahora</a>
+                    <a href="#challenges" class="btn btn-outline btn-lg">&#128071; Explorar Retos</a>
                 </div>
             </div>
         </section>
 
         <section id="challenges" class="challenges-section">
             <div class="container">
-                <h2>Retos Activos</h2>
+                <h2>&#128293; Retos Activos</h2>
                 <div id="estado" class="estado"></div>
                 <div id="challengesGrid" class="challenges-grid"></div>
             </div>
@@ -52,7 +52,7 @@
         <div class="modal-content">
             <button class="modal-close" id="closeDonate">&times;</button>
             <div id="donateContent">
-                <h3>Apoya este Reto</h3>
+                <h3>&#128176; Apoya este Reto</h3>
                 <p class="donate-subtitle">Introduce la cantidad que quieres aportar</p>
                 <form id="donateForm">
                     <input type="hidden" id="donateChallengeId">
@@ -69,15 +69,15 @@
                         <div class="payment-options">
                             <label class="payment-option">
                                 <input type="radio" name="payment" value="card" checked>
-                                <span>Tarjeta de Crédito/Débito</span>
+                                <span>&#128179; Tarjeta de Crédito/Débito</span>
                             </label>
                             <label class="payment-option">
                                 <input type="radio" name="payment" value="paypal">
-                                <span>PayPal</span>
+                                <span>&#128179; PayPal</span>
                             </label>
                             <label class="payment-option">
                                 <input type="radio" name="payment" value="mobile">
-                                <span>Pago Móvil</span>
+                                <span>&#128241; Pago Móvil</span>
                             </label>
                         </div>
                     </div>
@@ -106,7 +106,7 @@
                     <p class="note">Nota: Esta pasarela de pago es ficticia. No se procesan pagos reales.</p>
                     <div class="form-actions">
                         <button type="button" class="btn btn-outline" id="cancelDonate">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Confirmar Pago</button>
+                        <button type="submit" class="btn btn-primary">&#128176; Confirmar Pago</button>
                     </div>
                 </form>
                 <div id="donateResultado" class="donate-resultado"></div>
@@ -114,24 +114,24 @@
         </div>
     </div>
 
-    <div id="completeModal" class="modal-overlay hidden">
+    <div id="reportModal" class="modal-overlay hidden">
         <div class="modal-content">
-            <button class="modal-close" id="closeComplete">&times;</button>
-            <div id="completeContent">
-                <h3>Completar Reto</h3>
-                <p class="donate-subtitle">Sube la URL del video de prueba para marcar este reto como completado</p>
-                <form id="completeForm">
-                    <input type="hidden" id="completeChallengeId">
+            <button class="modal-close" id="closeReport">&times;</button>
+            <div id="reportContent">
+                <h3>&#128681; Reportar Reto</h3>
+                <p class="donate-subtitle">Describe por qu&eacute; este reto deber&iacute;a ser revisado</p>
+                <form id="reportForm">
+                    <input type="hidden" id="reportChallengeId">
                     <div class="form-group">
-                        <label for="videoUrl">URL del Video de Prueba</label>
-                        <input type="url" id="videoUrl" placeholder="https://..." required>
+                        <label for="reportReason">Motivo del Reporte</label>
+                        <textarea id="reportReason" placeholder="Explica por qu&eacute; este reto no cumple con las normas legales o de la comunidad..." rows="4" required></textarea>
                     </div>
                     <div class="form-actions">
-                        <button type="button" class="btn btn-outline" id="cancelComplete">Cancelar</button>
-                        <button type="submit" class="btn btn-success">Marcar como Completado</button>
+                        <button type="button" class="btn btn-outline" id="cancelReport">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">&#128681; Enviar Reporte</button>
                     </div>
                 </form>
-                <div id="completeResultado" class="donate-resultado"></div>
+                <div id="reportResultado" class="donate-resultado"></div>
             </div>
         </div>
     </div>

@@ -1,6 +1,5 @@
 package com.challenge.controller;
 
-import com.challenge.model.ChallengeDeleter;
 import com.challenge.model.UserManager;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
@@ -14,10 +13,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@WebServlet("/api/delete-challenge")
-public class DeleteChallengeServlet extends HttpServlet {
+@WebServlet("/api/ban-user")
+public class BanUserServlet extends HttpServlet {
 
-    private final ChallengeDeleter challengeDeleter = new ChallengeDeleter();
     private final UserManager userManager = new UserManager();
     private final Gson gson = new Gson();
 
@@ -39,10 +37,10 @@ public class DeleteChallengeServlet extends HttpServlet {
 
             Map<String, Object> datos = gson.fromJson(jsonRecibido.toString(), Map.class);
 
-            int challengeId = datos != null && datos.get("challengeId") != null ? ((Number) datos.get("challengeId")).intValue() : 0;
-            int userId = datos != null && datos.get("userId") != null ? ((Number) datos.get("userId")).intValue() : 0;
+            int adminUserId = datos != null && datos.get("adminUserId") != null ? ((Number) datos.get("adminUserId")).intValue() : 0;
+            int targetUserId = datos != null && datos.get("targetUserId") != null ? ((Number) datos.get("targetUserId")).intValue() : 0;
 
-            if (challengeId == 0 || userId == 0) {
+            if (adminUserId == 0 || targetUserId == 0) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 
                 Map<String, Object> error = new HashMap<>();
@@ -53,22 +51,22 @@ public class DeleteChallengeServlet extends HttpServlet {
                 return;
             }
 
-            if (!userManager.esAdmin(userId)) {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            if (adminUserId == targetUserId) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 
                 Map<String, Object> error = new HashMap<>();
                 error.put("ok", false);
-                error.put("mensaje", "No tienes permisos de administrador");
+                error.put("mensaje", "No puedes banearte a ti mismo");
 
                 response.getWriter().write(gson.toJson(error));
                 return;
             }
 
-            challengeDeleter.eliminarComoAdmin(challengeId);
+            userManager.banear(adminUserId, targetUserId);
 
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("ok", true);
-            respuesta.put("mensaje", "Reto eliminado correctamente");
+            respuesta.put("mensaje", "Usuario baneado correctamente");
 
             response.getWriter().write(gson.toJson(respuesta));
 
@@ -77,7 +75,7 @@ public class DeleteChallengeServlet extends HttpServlet {
 
             Map<String, Object> error = new HashMap<>();
             error.put("ok", false);
-            error.put("mensaje", "Error al eliminar reto");
+            error.put("mensaje", "Error al banear usuario");
             error.put("detalle", e.getMessage());
 
             response.getWriter().write(gson.toJson(error));

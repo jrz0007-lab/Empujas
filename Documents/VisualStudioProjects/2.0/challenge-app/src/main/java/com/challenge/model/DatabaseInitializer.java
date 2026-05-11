@@ -17,6 +17,8 @@ public class DatabaseInitializer implements ServletContextListener {
                 "username VARCHAR(100) NOT NULL, " +
                 "email VARCHAR(255) NOT NULL UNIQUE, " +
                 "password VARCHAR(255) NOT NULL, " +
+                "is_admin TINYINT(1) DEFAULT 0, " +
+                "banned TINYINT(1) DEFAULT 0, " +
                 "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
 
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS challenges (" +
@@ -42,6 +44,8 @@ public class DatabaseInitializer implements ServletContextListener {
 
             try { stmt.executeUpdate("ALTER TABLE challenges ADD COLUMN image_url VARCHAR(500)"); } catch (Exception ignored) {}
             try { stmt.executeUpdate("ALTER TABLE challenges ADD COLUMN video_url VARCHAR(500)"); } catch (Exception ignored) {}
+            try { stmt.executeUpdate("ALTER TABLE users ADD COLUMN is_admin TINYINT(1) DEFAULT 0"); } catch (Exception ignored) {}
+            try { stmt.executeUpdate("ALTER TABLE users ADD COLUMN banned TINYINT(1) DEFAULT 0"); } catch (Exception ignored) {}
 
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS favorites (" +
                 "id INT AUTO_INCREMENT PRIMARY KEY, " +
@@ -52,11 +56,23 @@ public class DatabaseInitializer implements ServletContextListener {
                 "FOREIGN KEY (challenge_id) REFERENCES challenges(id) ON DELETE CASCADE, " +
                 "UNIQUE KEY (user_id, challenge_id))");
 
+            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS reports (" +
+                "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "challenge_id INT NOT NULL, " +
+                "reporter_id INT NOT NULL, " +
+                "reason TEXT NOT NULL, " +
+                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "FOREIGN KEY (challenge_id) REFERENCES challenges(id) ON DELETE CASCADE, " +
+                "FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE)");
+
             stmt.executeUpdate("UPDATE users SET password = '1234' WHERE email IN ('demo@example.com', 'challenger@example.com')");
-            stmt.executeUpdate("INSERT INTO users (id, username, email, password) VALUES " +
-                "(1, 'demo_user', 'demo@example.com', '1234'), " +
-                "(2, 'challenger99', 'challenger@example.com', '1234') " +
-                "ON DUPLICATE KEY UPDATE password = VALUES(password)");
+            stmt.executeUpdate("INSERT INTO users (id, username, email, password, is_admin) VALUES " +
+                "(1, 'demo_user', 'demo@example.com', '1234', 0), " +
+                "(2, 'challenger99', 'challenger@example.com', '1234', 0), " +
+                "(99, 'admin', 'admin@pujas.com', 'admin123', 1) " +
+                "ON DUPLICATE KEY UPDATE password = VALUES(password), is_admin = VALUES(is_admin)");
+
+            stmt.executeUpdate("UPDATE users SET is_admin = 1 WHERE email LIKE '%@pujas.com'");
 
             try {
                 stmt.executeUpdate("INSERT IGNORE INTO challenges (id, title, description, goal_amount, current_amount, creator_id, status, video_url, image_url) VALUES " +

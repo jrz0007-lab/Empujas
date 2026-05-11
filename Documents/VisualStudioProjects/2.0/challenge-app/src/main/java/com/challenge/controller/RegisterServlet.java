@@ -36,11 +36,11 @@ public class RegisterServlet extends HttpServlet {
                 jsonRecibido.append(linea);
             }
 
-            Map<String, String> datos = gson.fromJson(jsonRecibido.toString(), Map.class);
+            Map<String, Object> datos = gson.fromJson(jsonRecibido.toString(), Map.class);
 
-            String username = datos != null && datos.get("username") != null ? datos.get("username").trim() : "";
-            String email = datos != null && datos.get("email") != null ? datos.get("email").trim() : "";
-            String password = datos != null && datos.get("password") != null ? datos.get("password").trim() : "";
+            String username = datos != null && datos.get("username") != null ? datos.get("username").toString().trim() : "";
+            String email = datos != null && datos.get("email") != null ? datos.get("email").toString().trim() : "";
+            String password = datos != null && datos.get("password") != null ? datos.get("password").toString().trim() : "";
 
             if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -59,6 +59,7 @@ public class RegisterServlet extends HttpServlet {
             respuesta.put("ok", true);
             respuesta.put("mensaje", "Registro exitoso");
             respuesta.put("user", user);
+            respuesta.put("isAdmin", user.isAdmin());
 
             response.getWriter().write(gson.toJson(respuesta));
 

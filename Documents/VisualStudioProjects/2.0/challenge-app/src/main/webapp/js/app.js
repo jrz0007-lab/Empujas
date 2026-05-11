@@ -8,6 +8,10 @@ function getUsername() {
     return sessionStorage.getItem('username');
 }
 
+function getIsAdmin() {
+    return sessionStorage.getItem('isAdmin') === 'true';
+}
+
 function showError(elementId, message) {
     const el = document.getElementById(elementId);
     if (el) {
@@ -36,7 +40,7 @@ function formatDate(dateStr) {
 }
 
 function formatCurrency(amount) {
-    return '€' + parseFloat(amount).toFixed(2);
+    return '\u20ac' + parseFloat(amount).toFixed(2);
 }
 
 function updateNavbar() {
@@ -44,7 +48,7 @@ function updateNavbar() {
     if (!navLinks) return;
     var userId = getUserId();
     if (userId) {
-        navLinks.innerHTML = '<a href="dashboard.html" class="btn btn-outline">Panel</a><a href="#" class="btn btn-primary" id="logoutBtn">Cerrar Sesión</a>';
+        navLinks.innerHTML = '<a href="dashboard.html" class="btn btn-outline">\uD83D\uDCCA Panel</a><a href="#" class="btn btn-primary" id="logoutBtn">Cerrar Sesi\u00f3n</a>';
         document.getElementById('logoutBtn')?.addEventListener('click', function (e) {
             e.preventDefault();
             sessionStorage.clear();
@@ -56,52 +60,202 @@ function updateNavbar() {
 function createChallengeCard(challenge) {
     const progress = challenge.currentAmount / challenge.goalAmount * 100;
     const isCompleted = challenge.status === 'completed';
+    const isFav = challenge.favorited;
+    const isAdmin = getIsAdmin();
+    const userId = getUserId();
     const card = document.createElement('div');
     card.className = 'challenge-card' + (isCompleted ? ' completed' : '');
     card.dataset.id = challenge.id;
 
-    card.innerHTML = `
-        <h3>${challenge.title}</h3>
-        <p class="challenge-creator">por ${challenge.creatorName} &middot; ${formatDate(challenge.createdAt)}</p>
-        <p class="challenge-desc">${challenge.description}</p>
-        <div class="challenge-progress">
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: ${Math.min(100, progress)}%"></div>
-            </div>
-            <div class="progress-info">
-                <span>${formatCurrency(challenge.currentAmount)} recaudados</span>
-                <span>${formatCurrency(challenge.goalAmount)} meta</span>
-            </div>
-        </div>
-        <div class="challenge-stats">
-            <span>${challenge.supporterCount} apoyador(es)</span>
-            <span class="challenge-status ${isCompleted ? 'status-completed' : 'status-active'}">${isCompleted ? 'Completado' : 'Activo'}</span>
-        </div>
-        <div class="challenge-actions">
-            <button class="btn btn-outline view-detail">Ver Detalles</button>
-            ${!isCompleted ? '<button class="btn btn-primary support-btn">Apoyar Reto</button>' : '<button class="btn btn-success view-completed">Ver Reto Completado</button>'}
-        </div>
-    `;
+    var imageHtml = '';
+    if (challenge.imageUrl) {
+        imageHtml = '<div class="card-image"><img src="' + challenge.imageUrl + '" alt="' + challenge.title + '" loading="lazy"></div>';
+    }
+
+    var favBtn = '';
+    if (userId) {
+        favBtn = '<button class="fav-btn ' + (isFav ? 'fav-active' : '') + '" data-id="' + challenge.id + '" data-fav="' + isFav + '">' + (isFav ? '\u2764' : '\u2661') + '</button>';
+    }
+
+    var adminActions = '';
+    if (isAdmin) {
+        adminActions = '\n        <div class="admin-actions">\n' +
+            '            <button class="btn btn-danger btn-sm delete-challenge" data-id="' + challenge.id + '">\uD83D\uDDD1 Eliminar Reto</button>\n' +
+            '            <button class="btn btn-outline-danger btn-sm ban-creator" data-creator-id="' + challenge.creatorId + '" data-creator-name="' + challenge.creatorName + '">\uD83D\uDEAB Banear ' + challenge.creatorName + '</button>\n' +
+            '        </div>';
+    }
+
+    var reportBtn = '';
+    if (userId && !isAdmin) {
+        reportBtn = '<button class="btn btn-sm btn-outline report-challenge" data-id="' + challenge.id + '">\uD83D\uDEA9 Reportar</button>';
+    }
+
+    var statusEmoji = isCompleted ? '\u2705' : '\uD83D\uDD25';
+    var statusText = isCompleted ? 'Completado' : 'Activo';
+
+    card.innerHTML = imageHtml + favBtn + '\n' +
+        '        <h3>' + challenge.title + '</h3>\n' +
+        '        <p class="challenge-creator">por ' + challenge.creatorName + ' \u00b7 ' + formatDate(challenge.createdAt) + '</p>\n' +
+        '        <p class="challenge-desc">' + challenge.description + '</p>\n' +
+        '        <div class="challenge-progress">\n' +
+        '            <div class="progress-bar">\n' +
+        '                <div class="progress-fill" style="width: ' + Math.min(100, progress) + '%"></div>\n' +
+        '            </div>\n' +
+        '            <div class="progress-info">\n' +
+        '                <span>' + formatCurrency(challenge.currentAmount) + ' recaudados</span>\n' +
+        '                <span>' + formatCurrency(challenge.goalAmount) + ' meta</span>\n' +
+        '            </div>\n' +
+        '        </div>\n' +
+        '        <div class="challenge-stats">\n' +
+        '            <span>\uD83D\uDC65 ' + challenge.supporterCount + ' apoyador(es)</span>\n' +
+        '            <span class="challenge-status ' + (isCompleted ? 'status-completed' : 'status-active') + '">' + statusEmoji + ' ' + statusText + '</span>\n' +
+        '        </div>\n' +
+        '        <div class="challenge-actions">\n' +
+        '            <button class="btn btn-outline view-detail">\uD83D\uDC41 Ver Detalles</button>\n' +
+        '            ' + (isCompleted ? '<button class="btn btn-success view-completed">\uD83C\uDFC6 Ver Logro</button>' : '<button class="btn btn-primary support-btn">\uD83D\uDCB0 Apoyar</button>') + '\n' +
+        '            ' + reportBtn + '\n' +
+        '        </div>\n' +
+        adminActions +
+        '    ';
 
     card.querySelector('.view-detail').addEventListener('click', function () {
         openDetail(challenge.id);
     });
 
-    const supportBtn = card.querySelector('.support-btn');
+    var supportBtn = card.querySelector('.support-btn');
     if (supportBtn) {
         supportBtn.addEventListener('click', function () {
             openDonate(challenge.id, challenge.title);
         });
     }
 
-    const viewCompleted = card.querySelector('.view-completed');
+    var viewCompleted = card.querySelector('.view-completed');
     if (viewCompleted) {
         viewCompleted.addEventListener('click', function () {
             openDetail(challenge.id);
         });
     }
 
+    var favButton = card.querySelector('.fav-btn');
+    if (favButton) {
+        favButton.addEventListener('click', function () {
+            toggleFav(challenge.id, favButton);
+        });
+    }
+
+    var deleteBtn = card.querySelector('.delete-challenge');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', function () {
+            if (confirm('\u00bfEst\u00e1s seguro de eliminar este reto?')) {
+                eliminarReto(challenge.id);
+            }
+        });
+    }
+
+    var banBtn = card.querySelector('.ban-creator');
+    if (banBtn) {
+        banBtn.addEventListener('click', function () {
+            if (confirm('\u00bfEst\u00e1s seguro de banear a ' + challenge.creatorName + '? Se borrar\u00e1n todos sus datos.')) {
+                banearUsuario(challenge.creatorId);
+            }
+        });
+    }
+
+    var reportBtnEl = card.querySelector('.report-challenge');
+    if (reportBtnEl) {
+        reportBtnEl.addEventListener('click', function () {
+            abrirReporteModal(challenge.id, challenge.title);
+        });
+    }
+
     return card;
+}
+
+function toggleFav(challengeId, btn) {
+    var userId = getUserId();
+    if (!userId) {
+        window.location.href = '/login.html';
+        return;
+    }
+
+    fetch(API_BASE + '/api/toggle-favorite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: parseInt(userId), challengeId: challengeId })
+    })
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+        if (data.ok) {
+            var isNowFav = btn.dataset.fav === 'true';
+            if (isNowFav) {
+                btn.dataset.fav = 'false';
+                btn.classList.remove('fav-active');
+                btn.innerHTML = '\u2661';
+            } else {
+                btn.dataset.fav = 'true';
+                btn.classList.add('fav-active');
+                btn.innerHTML = '\u2764';
+            }
+        }
+    })
+    .catch(function (error) {
+        console.error('Error al toggle fav:', error);
+    });
+}
+
+function eliminarReto(challengeId) {
+    var userId = getUserId();
+
+    fetch(API_BASE + '/api/delete-challenge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ challengeId: challengeId, userId: parseInt(userId) })
+    })
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+        if (data.ok) {
+            if (typeof cargarRetos === 'function') cargarRetos();
+            if (typeof cargarDashboard === 'function') cargarDashboard();
+        } else {
+            alert('Error: ' + data.mensaje);
+        }
+    })
+    .catch(function (error) {
+        alert('Error de conexi\u00f3n: ' + error.message);
+    });
+}
+
+function banearUsuario(targetUserId) {
+    var adminUserId = getUserId();
+
+    fetch(API_BASE + '/api/ban-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminUserId: parseInt(adminUserId), targetUserId: targetUserId })
+    })
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+        if (data.ok) {
+            alert('Usuario baneado correctamente');
+            if (typeof cargarRetos === 'function') cargarRetos();
+            if (typeof cargarDashboard === 'function') cargarDashboard();
+        } else {
+            alert('Error: ' + data.mensaje);
+        }
+    })
+    .catch(function (error) {
+        alert('Error de conexi\u00f3n: ' + error.message);
+    });
+}
+
+function abrirReporteModal(challengeId, title) {
+    var modal = document.getElementById('reportModal');
+    if (!modal) return;
+    document.getElementById('reportChallengeId').value = challengeId;
+    document.querySelector('#reportContent h3').textContent = '\uD83D\uDEA9 Reportar: ' + title;
+    document.getElementById('reportReason').value = '';
+    document.getElementById('reportResultado').innerHTML = '';
+    modal.classList.remove('hidden');
 }
 
 function openDetail(challengeId) {
@@ -113,7 +267,11 @@ function openDetail(challengeId) {
     content.innerHTML = '<p class="estado">Cargando...</p>';
     modal.classList.remove('hidden');
 
-    fetch(API_BASE + '/api/challenge?id=' + challengeId)
+    var userId = getUserId();
+    var url = API_BASE + '/api/challenge?id=' + challengeId;
+    if (userId) url += '&userId=' + userId;
+
+    fetch(url)
         .then(function (response) {
             return response.json();
         })
@@ -126,52 +284,59 @@ function openDetail(challengeId) {
             const donations = data.donations || [];
             const progress = c.currentAmount / c.goalAmount * 100;
             const isCompleted = c.status === 'completed';
+            const isAdmin = getIsAdmin();
 
             let html = '<div class="detail-layout">';
             html += '<div class="detail-info">';
 
             if (isCompleted) {
-                html += '<div class="completed-badge">&#9989; Completado</div>';
+                html += '<div class="completed-badge">\u2705 Completado</div>';
             }
 
             html += '<h2>' + c.title + '</h2>';
-            html += '<p class="detail-meta">por ' + c.creatorName + ' &middot; ' + formatDate(c.createdAt) + '</p>';
+            html += '<p class="detail-meta">por ' + c.creatorName + ' \u00b7 ' + formatDate(c.createdAt) + '</p>';
+
+            if (c.imageUrl) {
+                html += '<div class="detail-image"><img src="' + c.imageUrl + '" alt="' + c.title + '"></div>';
+            }
+
             html += '<p class="detail-desc">' + c.description + '</p>';
 
-            if (isCompleted) {
-                html += '<div class="completed-confirmation">&#9989; ¡Este reto se ha completado con éxito! Mira el video de prueba a continuación.</div>';
-                if (c.videoUrl) {
-                    html += '<div class="video-container"><iframe src="' + c.videoUrl + '" frameborder="0" allowfullscreen></iframe></div>';
-                }
+            if (c.videoUrl) {
+                html += '<div class="video-container"><iframe src="' + c.videoUrl + '" frameborder="0" allowfullscreen></iframe></div>';
             }
 
             if (donations.length > 0) {
-                html += '<h3>Últimos Apoyos</h3><ul>';
+                html += '<h3>\uD83D\uDC65 \u00daltimos Apoyos</h3><ul>';
                 donations.slice(0, 10).forEach(function (d) {
-                    html += '<li><strong>' + d.donorName + '</strong> donó ' + formatCurrency(d.amount) + '</li>';
+                    html += '<li><strong>' + d.donorName + '</strong> don\u00f3 ' + formatCurrency(d.amount) + '</li>';
                 });
                 html += '</ul>';
             }
 
             html += '</div>';
             html += '<div class="detail-panel">';
-            html += '<h3>Progreso de Financiación</h3>';
+            html += '<h3>Progreso de Financiaci\u00f3n</h3>';
             html += '<div class="panel-progress">';
             html += '<div class="progress-bar"><div class="progress-fill" style="width: ' + Math.min(100, progress) + '%"></div></div>';
             html += '</div>';
             html += '<div class="panel-stat"><span>Cantidad Actual</span><strong>' + formatCurrency(c.currentAmount) + '</strong></div>';
             html += '<div class="panel-stat"><span>Meta</span><strong>' + formatCurrency(c.goalAmount) + '</strong></div>';
             html += '<div class="panel-stat"><span>Progreso</span><strong>' + Math.round(progress) + '%</strong></div>';
-            html += '<div class="panel-stat"><span>Apoyadores</span><strong>' + c.supporterCount + '</strong></div>';
-            html += '<div class="panel-stat"><span>Estado</span><strong class="' + (isCompleted ? 'status-completed' : 'status-active') + '">' + (isCompleted ? 'Completado' : 'Activo') + '</strong></div>';
+            html += '<div class="panel-stat"><span>\uD83D\uDC65 Apoyadores</span><strong>' + c.supporterCount + '</strong></div>';
+            html += '<div class="panel-stat"><span>Estado</span><strong class="' + (isCompleted ? 'status-completed' : 'status-active') + '">' + (isCompleted ? '\u2705 Completado' : '\uD83D\uDD25 Activo') + '</strong></div>';
 
-            if (!isCompleted) {
-                html += '<button class="btn btn-primary btn-full" id="detailSupportBtn">Apoyar este Reto</button>';
+            if (isAdmin) {
+                html += '<div class="admin-actions-panel">';
+                html += '<button class="btn btn-danger btn-full" id="detailDeleteBtn">\uD83D\uDDD1 Eliminar este Reto</button>';
+                html += '<button class="btn btn-outline-danger btn-full" id="detailBanBtn" style="margin-top:0.5rem">\uD83D\uDEAB Banear a ' + c.creatorName + '</button>';
+                html += '</div>';
+            } else if (!isCompleted) {
+                html += '<button class="btn btn-primary btn-full" id="detailSupportBtn">\uD83D\uDCB0 Apoyar este Reto</button>';
             }
 
-            if (getUserId() && parseInt(c.creatorId) === parseInt(getUserId()) && !isCompleted && c.currentAmount >= c.goalAmount) {
-                html += '<div class="goal-reached">¡Meta alcanzada! Ahora puedes subir tu video de prueba.</div>';
-                html += '<button class="btn btn-success btn-full" id="detailCompleteBtn" style="margin-top:0.5rem">Marcar como Completado</button>';
+            if (isCompleted && c.videoUrl) {
+                html += '<div class="completed-confirmation">\u2705 \u00a1Este reto se ha completado con \u00e9xito!</div>';
             }
 
             html += '</div></div>';
@@ -186,11 +351,23 @@ function openDetail(challengeId) {
                 });
             }
 
-            var completeBtn = document.getElementById('detailCompleteBtn');
-            if (completeBtn) {
-                completeBtn.addEventListener('click', function () {
-                    modal.classList.add('hidden');
-                    openComplete(c.id);
+            var deleteBtn = document.getElementById('detailDeleteBtn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', function () {
+                    if (confirm('\u00bfEst\u00e1s seguro de eliminar este reto?')) {
+                        modal.classList.add('hidden');
+                        eliminarReto(c.id);
+                    }
+                });
+            }
+
+            var banBtn = document.getElementById('detailBanBtn');
+            if (banBtn) {
+                banBtn.addEventListener('click', function () {
+                    if (confirm('\u00bfEst\u00e1s seguro de banear a ' + c.creatorName + '? Se borrar\u00e1n todos sus datos.')) {
+                        modal.classList.add('hidden');
+                        banearUsuario(c.creatorId);
+                    }
                 });
             }
 
@@ -205,17 +382,9 @@ function openDetail(challengeId) {
 function openDonate(challengeId, title) {
     const modal = document.getElementById('donateModal');
     document.getElementById('donateChallengeId').value = challengeId;
-    document.querySelector('#donateContent h3').textContent = 'Apoyar: ' + title;
+    document.querySelector('#donateContent h3').textContent = '\uD83D\uDCB0 Apoyar: ' + title;
     document.getElementById('donateResultado').innerHTML = '';
     document.getElementById('donateForm').reset();
-    modal.classList.remove('hidden');
-}
-
-function openComplete(challengeId) {
-    const modal = document.getElementById('completeModal');
-    document.getElementById('completeChallengeId').value = challengeId;
-    document.getElementById('completeResultado').innerHTML = '';
-    document.getElementById('completeForm').reset();
     modal.classList.remove('hidden');
 }
 
@@ -227,7 +396,11 @@ function cargarRetos() {
     grid.innerHTML = '';
     if (estado) estado.textContent = 'Cargando retos...';
 
-    fetch(API_BASE + '/api/challenges')
+    var userId = getUserId();
+    var url = API_BASE + '/api/challenges';
+    if (userId) url += '?userId=' + userId;
+
+    fetch(url)
         .then(function (response) {
             return response.json();
         })
@@ -238,7 +411,7 @@ function cargarRetos() {
             }
 
             if (data.total === 0) {
-                grid.innerHTML = '<div class="estado">No hay retos disponibles aún. ¡Sé el primero en crear uno!</div>';
+                grid.innerHTML = '<div class="estado">No hay retos disponibles a\u00fan. \u00a1S\u00e9 el primero en crear uno!</div>';
                 return;
             }
 
@@ -280,13 +453,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         sessionStorage.setItem('userId', data.user.id);
                         sessionStorage.setItem('username', data.user.username);
                         sessionStorage.setItem('userEmail', data.user.email);
+                        sessionStorage.setItem('isAdmin', data.isAdmin);
                         window.location.href = '/dashboard.html';
                     } else {
-                        showError('loginResultado', data.mensaje || 'Credenciales inválidas');
+                        showError('loginResultado', data.mensaje || 'Credenciales inv\u00e1lidas');
                     }
                 })
                 .catch(function (error) {
-                    showError('loginResultado', 'Error de conexión: ' + error.message);
+                    showError('loginResultado', 'Error de conexi\u00f3n: ' + error.message);
                 });
         });
     }
@@ -303,7 +477,7 @@ document.addEventListener('DOMContentLoaded', function () {
             var confirm = document.getElementById('regConfirm').value.trim();
 
             if (password !== confirm) {
-                showError('registerResultado', 'Las contraseñas no coinciden');
+                showError('registerResultado', 'Las contrase\u00f1as no coinciden');
                 return;
             }
 
@@ -318,31 +492,74 @@ document.addEventListener('DOMContentLoaded', function () {
                         sessionStorage.setItem('userId', data.user.id);
                         sessionStorage.setItem('username', data.user.username);
                         sessionStorage.setItem('userEmail', data.user.email);
+                        sessionStorage.setItem('isAdmin', data.isAdmin);
                         window.location.href = '/dashboard.html';
                     } else {
                         showError('registerResultado', data.mensaje || 'Error al registrarse');
                     }
                 })
                 .catch(function (error) {
-                    showError('registerResultado', 'Error de conexión: ' + error.message);
+                    showError('registerResultado', 'Error de conexi\u00f3n: ' + error.message);
                 });
         });
     }
 
     var createForm = document.getElementById('createChallengeForm');
     if (createForm) {
+        var titleInput = document.getElementById('challengeTitle');
+        var descInput = document.getElementById('challengeDesc');
+        var goalInput = document.getElementById('challengeGoal');
+        var videoInput = document.getElementById('challengeVideo');
+        var imageInput = document.getElementById('challengeImage');
+        var previewSection = document.getElementById('previewSection');
+        var previewTitle = document.getElementById('previewTitle');
+        var previewDesc = document.getElementById('previewDesc');
+        var previewGoal = document.getElementById('previewGoal');
+        var previewImage = document.getElementById('previewImage');
+        var previewImageContainer = document.getElementById('previewImageContainer');
+
+        function updatePreview() {
+            var t = titleInput.value.trim();
+            var d = descInput.value.trim();
+            var g = goalInput.value;
+            var img = imageInput.value.trim();
+
+            if (t || d || g) {
+                previewSection.style.display = 'flex';
+                if (t) previewTitle.textContent = t;
+                if (d) previewDesc.textContent = d.substring(0, 200) + (d.length > 200 ? '...' : '');
+                if (g) previewGoal.innerHTML = 'Meta: ' + formatCurrency(parseFloat(g));
+
+                if (img) {
+                    previewImage.src = img;
+                    previewImageContainer.style.display = 'block';
+                } else {
+                    previewImageContainer.style.display = 'none';
+                }
+            } else {
+                previewSection.style.display = 'none';
+            }
+        }
+
+        titleInput.addEventListener('input', updatePreview);
+        descInput.addEventListener('input', updatePreview);
+        goalInput.addEventListener('input', updatePreview);
+        imageInput.addEventListener('input', updatePreview);
+
         createForm.addEventListener('submit', function (e) {
             e.preventDefault();
             clearResultado('createResultado');
 
             if (!getUserId()) {
-                showError('createResultado', 'Debes iniciar sesión para crear un reto');
+                showError('createResultado', 'Debes iniciar sesi\u00f3n para crear un reto');
                 return;
             }
 
-            var title = document.getElementById('challengeTitle').value.trim();
-            var description = document.getElementById('challengeDesc').value.trim();
-            var goalAmount = parseFloat(document.getElementById('challengeGoal').value);
+            var title = titleInput.value.trim();
+            var description = descInput.value.trim();
+            var goalAmount = parseFloat(goalInput.value);
+            var videoUrl = videoInput.value.trim();
+            var imageUrl = imageInput.value.trim();
 
             if (!title || !description || !goalAmount || goalAmount <= 0) {
                 showError('createResultado', 'Todos los campos son obligatorios y la meta debe ser mayor que 0');
@@ -356,13 +573,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     title: title,
                     description: description,
                     goalAmount: goalAmount,
-                    creatorId: parseInt(getUserId())
+                    creatorId: parseInt(getUserId()),
+                    videoUrl: videoUrl || null,
+                    imageUrl: imageUrl || null
                 })
             })
                 .then(function (response) { return response.json(); })
                 .then(function (data) {
                     if (data.ok) {
-                        showSuccess('createResultado', '¡Reto creado con éxito! Redirigiendo...');
+                        showSuccess('createResultado', '\u00a1Reto creado con \u00e9xito! Redirigiendo...');
                         setTimeout(function () {
                             window.location.href = '/dashboard.html';
                         }, 1500);
@@ -371,7 +590,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 })
                 .catch(function (error) {
-                    showError('createResultado', 'Error de conexión: ' + error.message);
+                    showError('createResultado', 'Error de conexi\u00f3n: ' + error.message);
                 });
         });
     }
@@ -390,6 +609,46 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    var reportForm = document.getElementById('reportForm');
+    if (reportForm) {
+        reportForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            clearResultado('reportResultado');
+
+            var challengeId = parseInt(document.getElementById('reportChallengeId').value);
+            var reason = document.getElementById('reportReason').value.trim();
+
+            if (!reason) {
+                showError('reportResultado', 'Por favor, describe el motivo del reporte');
+                return;
+            }
+
+            fetch(API_BASE + '/api/report-challenge', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    challengeId: challengeId,
+                    userId: parseInt(getUserId()),
+                    reason: reason
+                })
+            })
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                    if (data.ok) {
+                        showSuccess('reportResultado', 'Reporte enviado correctamente. Gracias por ayudar a mantener la comunidad segura.');
+                        setTimeout(function () {
+                            document.getElementById('reportModal').classList.add('hidden');
+                        }, 2000);
+                    } else {
+                        showError('reportResultado', data.mensaje || 'Error al enviar reporte');
+                    }
+                })
+                .catch(function (error) {
+                    showError('reportResultado', 'Error de conexi\u00f3n: ' + error.message);
+                });
+        });
+    }
+
     var donateForm = document.getElementById('donateForm');
     if (donateForm) {
         donateForm.addEventListener('submit', function (e) {
@@ -405,66 +664,33 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            var body = {
+                challengeId: challengeId,
+                donorName: donorName,
+                amount: amount,
+                userId: getUserId() ? parseInt(getUserId()) : null
+            };
+
             fetch(API_BASE + '/api/donate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    challengeId: challengeId,
-                    donorName: donorName,
-                    amount: amount
-                })
+                body: JSON.stringify(body)
             })
                 .then(function (response) { return response.json(); })
                 .then(function (data) {
                     if (data.ok) {
-                        showSuccess('donateResultado', '¡Gracias! Tu donación de ' + formatCurrency(amount) + ' ha sido procesada.');
+                        showSuccess('donateResultado', '\u00a1Gracias! Tu donaci\u00f3n de ' + formatCurrency(amount) + ' ha sido procesada.');
                         setTimeout(function () {
                             document.getElementById('donateModal').classList.add('hidden');
-                            cargarRetos();
+                            if (typeof cargarRetos === 'function') cargarRetos();
+                            if (typeof cargarDashboard === 'function') cargarDashboard();
                         }, 1500);
                     } else {
-                        showError('donateResultado', data.mensaje || 'Error al procesar la donación');
+                        showError('donateResultado', data.mensaje || 'Error al procesar la donaci\u00f3n');
                     }
                 })
                 .catch(function (error) {
-                    showError('donateResultado', 'Error de conexión: ' + error.message);
-                });
-        });
-    }
-
-    var completeForm = document.getElementById('completeForm');
-    if (completeForm) {
-        completeForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            clearResultado('completeResultado');
-
-            var challengeId = parseInt(document.getElementById('completeChallengeId').value);
-            var videoUrl = document.getElementById('videoUrl').value.trim();
-
-            if (!videoUrl) {
-                showError('completeResultado', 'Por favor, proporciona una URL de video');
-                return;
-            }
-
-            fetch(API_BASE + '/api/complete-challenge', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ challengeId: challengeId, videoUrl: videoUrl })
-            })
-                .then(function (response) { return response.json(); })
-                .then(function (data) {
-                    if (data.ok) {
-                        showSuccess('completeResultado', '¡Reto marcado como completado!');
-                        setTimeout(function () {
-                            document.getElementById('completeModal').classList.add('hidden');
-                            cargarRetos();
-                        }, 1500);
-                    } else {
-                        showError('completeResultado', data.mensaje || 'Error al completar el reto');
-                    }
-                })
-                .catch(function (error) {
-                    showError('completeResultado', 'Error de conexión: ' + error.message);
+                    showError('donateResultado', 'Error de conexi\u00f3n: ' + error.message);
                 });
         });
     }
@@ -485,12 +711,12 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('donateModal').classList.add('hidden');
     });
 
-    document.getElementById('closeComplete')?.addEventListener('click', function () {
-        document.getElementById('completeModal').classList.add('hidden');
+    document.getElementById('closeReport')?.addEventListener('click', function () {
+        document.getElementById('reportModal').classList.add('hidden');
     });
 
-    document.getElementById('cancelComplete')?.addEventListener('click', function () {
-        document.getElementById('completeModal').classList.add('hidden');
+    document.getElementById('cancelReport')?.addEventListener('click', function () {
+        document.getElementById('reportModal').classList.add('hidden');
     });
 
     document.getElementById('detailModal')?.addEventListener('click', function (e) {
@@ -501,7 +727,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (e.target === this) this.classList.add('hidden');
     });
 
-    document.getElementById('completeModal')?.addEventListener('click', function (e) {
+    document.getElementById('reportModal')?.addEventListener('click', function (e) {
         if (e.target === this) this.classList.add('hidden');
     });
 });
@@ -529,27 +755,44 @@ function cargarDashboard() {
             console.error('Error al cargar perfil:', error);
         });
 
-    cargarRetosDashboard('active');
+    fetch(API_BASE + '/api/favorites?userId=' + userId)
+        .then(function (response) { return response.json(); })
+        .then(function (data) {
+            if (data.ok) {
+                document.getElementById('totalFavorited').textContent = data.total || 0;
+            }
+        })
+        .catch(function () {});
+
+    var activeTab = document.querySelector('.tab.active');
+    var tabName = activeTab ? activeTab.dataset.tab : 'active';
+    cargarRetosDashboard(tabName, userId);
 
     document.querySelectorAll('.tab').forEach(function (tab) {
         tab.addEventListener('click', function () {
             document.querySelectorAll('.tab').forEach(function (t) { t.classList.remove('active'); });
             tab.classList.add('active');
-            cargarRetosDashboard(tab.dataset.tab);
+            cargarRetosDashboard(tab.dataset.tab, userId);
         });
     });
 }
 
-function cargarRetosDashboard(status) {
+function cargarRetosDashboard(tab, userId) {
     var grid = document.getElementById('dashboardGrid');
     var estado = document.getElementById('dashboardEstado');
-    var userId = getUserId();
 
     if (!grid) return;
     grid.innerHTML = '';
     estado.textContent = 'Cargando retos...';
 
-    fetch(API_BASE + '/api/challenges?creatorId=' + userId + '&status=' + status)
+    var url;
+    if (tab === 'favorites') {
+        url = API_BASE + '/api/favorites?userId=' + userId;
+    } else {
+        url = API_BASE + '/api/challenges?creatorId=' + userId + '&status=' + tab + '&userId=' + userId;
+    }
+
+    fetch(url)
         .then(function (response) { return response.json(); })
         .then(function (data) {
             estado.textContent = '';
@@ -558,10 +801,12 @@ function cargarRetosDashboard(status) {
             }
 
             if (data.total === 0) {
-                if (status === 'active') {
+                if (tab === 'active') {
                     grid.innerHTML = '<div class="estado">No tienes retos activos. <a href="create-challenge.html" class="btn btn-primary" style="display:inline-block;margin-top:0.5rem">Crea tu primer reto</a></div>';
+                } else if (tab === 'completed') {
+                    grid.innerHTML = '<div class="estado">A\u00fan no tienes retos completados.</div>';
                 } else {
-                    grid.innerHTML = '<div class="estado">Aún no tienes retos completados.</div>';
+                    grid.innerHTML = '<div class="estado">A\u00fan no tienes retos favoritos. \u00a1Explora retos y marca tus favoritos!</div>';
                 }
                 return;
             }

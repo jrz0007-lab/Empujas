@@ -17,11 +17,16 @@ public class UserAuthenticator {
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
+                    if (rs.getInt("banned") == 1) {
+                        return null;
+                    }
                     User user = new User();
                     user.setId(rs.getInt("id"));
                     user.setUsername(rs.getString("username"));
                     user.setEmail(rs.getString("email"));
                     user.setPassword(rs.getString("password"));
+                    user.setAdmin(rs.getInt("is_admin") == 1);
+                    user.setBanned(rs.getInt("banned") == 1);
                     return user;
                 }
             }

@@ -37,10 +37,10 @@ public class LoginServlet extends HttpServlet {
                 jsonRecibido.append(linea);
             }
 
-            Map<String, String> datos = gson.fromJson(jsonRecibido.toString(), Map.class);
+            Map<String, Object> datos = gson.fromJson(jsonRecibido.toString(), Map.class);
 
-            String email = datos != null && datos.get("email") != null ? datos.get("email").trim() : "";
-            String password = datos != null && datos.get("password") != null ? datos.get("password").trim() : "";
+            String email = datos != null && datos.get("email") != null ? datos.get("email").toString().trim() : "";
+            String password = datos != null && datos.get("password") != null ? datos.get("password").toString().trim() : "";
 
             if (email.isEmpty() || password.isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -66,6 +66,17 @@ public class LoginServlet extends HttpServlet {
                 return;
             }
 
+            if (user.isBanned()) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+
+                Map<String, Object> error = new HashMap<>();
+                error.put("ok", false);
+                error.put("mensaje", "Tu cuenta ha sido baneada");
+
+                response.getWriter().write(gson.toJson(error));
+                return;
+            }
+
             HttpSession session = request.getSession();
             session.setAttribute("userId", user.getId());
             session.setAttribute("username", user.getUsername());
@@ -74,6 +85,7 @@ public class LoginServlet extends HttpServlet {
             respuesta.put("ok", true);
             respuesta.put("mensaje", "Inicio de sesión exitoso");
             respuesta.put("user", user);
+            respuesta.put("isAdmin", user.isAdmin());
 
             response.getWriter().write(gson.toJson(respuesta));
 

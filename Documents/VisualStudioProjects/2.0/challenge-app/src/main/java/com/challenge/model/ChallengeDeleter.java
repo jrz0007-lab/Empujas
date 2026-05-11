@@ -19,4 +19,18 @@ public class ChallengeDeleter {
             throw new RuntimeException("Error al eliminar reto", e);
         }
     }
+
+    public void eliminarComoAdmin(int challengeId) {
+        String sql = "DELETE FROM challenges WHERE id = ?";
+
+        try (Connection con = ConexionBD.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, challengeId);
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al eliminar reto como admin", e);
+        }
+    }
 }
