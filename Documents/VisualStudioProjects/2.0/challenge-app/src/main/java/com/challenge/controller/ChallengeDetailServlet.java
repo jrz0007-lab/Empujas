@@ -28,9 +28,10 @@ public class ChallengeDetailServlet extends HttpServlet {
         response.setContentType("application/json;charset=UTF-8");
 
         try {
-            String idStr = request.getParameter("id");
+            String idParam = request.getParameter("id");
+            String userIdParam = request.getParameter("userId");
 
-            if (idStr == null || idStr.isEmpty()) {
+            if (idParam == null || idParam.isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 
                 Map<String, Object> error = new HashMap<>();
@@ -41,8 +42,10 @@ public class ChallengeDetailServlet extends HttpServlet {
                 return;
             }
 
-            int id = Integer.parseInt(idStr);
-            Challenge challenge = challengeFinder.buscarPorId(id);
+            Integer userId = userIdParam != null && !userIdParam.isEmpty()
+                ? Integer.parseInt(userIdParam) : null;
+
+            Challenge challenge = challengeFinder.buscarPorId(Integer.parseInt(idParam), userId);
 
             if (challenge == null) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -55,12 +58,12 @@ public class ChallengeDetailServlet extends HttpServlet {
                 return;
             }
 
-            List<Donation> donaciones = challengeFinder.buscarDonaciones(id);
+            List<Donation> donations = challengeFinder.buscarDonaciones(challenge.getId());
 
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("ok", true);
             respuesta.put("challenge", challenge);
-            respuesta.put("donations", donaciones);
+            respuesta.put("donations", donations);
 
             response.getWriter().write(gson.toJson(respuesta));
 
@@ -69,7 +72,7 @@ public class ChallengeDetailServlet extends HttpServlet {
 
             Map<String, Object> error = new HashMap<>();
             error.put("ok", false);
-            error.put("mensaje", "Error al obtener detalle del reto");
+            error.put("mensaje", "Error al obtener detalles del reto");
             error.put("detalle", e.getMessage());
 
             response.getWriter().write(gson.toJson(error));

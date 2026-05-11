@@ -9,8 +9,15 @@ import java.util.List;
 public class ChallengeFinder {
 
     public Challenge buscarPorId(int id) {
+        return buscarPorId(id, null);
+    }
+
+    public Challenge buscarPorId(int id, Integer userId) {
         String sql = "SELECT c.*, u.username AS creator_name, "
-                + "(SELECT COUNT(*) FROM donations WHERE challenge_id = c.id) AS supporter_count "
+                + "(SELECT COUNT(*) FROM donations WHERE challenge_id = c.id) AS supporter_count, "
+                + (userId != null
+                    ? "(SELECT COUNT(*) FROM favorites WHERE challenge_id = c.id AND user_id = " + userId + ") AS is_fav "
+                    : "0 AS is_fav ")
                 + "FROM challenges c JOIN users u ON c.creator_id = u.id "
                 + "WHERE c.id = ?";
 
@@ -30,9 +37,11 @@ public class ChallengeFinder {
                     c.setCreatorId(rs.getInt("creator_id"));
                     c.setCreatorName(rs.getString("creator_name"));
                     c.setStatus(rs.getString("status"));
-                    c.setVideoUrl(rs.getString("video_url"));
                     c.setCreatedAt(rs.getString("created_at"));
                     c.setSupporterCount(rs.getInt("supporter_count"));
+                    c.setFavorited(rs.getInt("is_fav") > 0);
+                    try { c.setVideoUrl(rs.getString("video_url")); } catch (Exception ignored) {}
+                    try { c.setImageUrl(rs.getString("image_url")); } catch (Exception ignored) {}
                     return c;
                 }
             }

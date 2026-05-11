@@ -38,8 +38,9 @@ public class DonateServlet extends HttpServlet {
             Map<String, Object> datos = gson.fromJson(jsonRecibido.toString(), Map.class);
 
             int challengeId = datos != null && datos.get("challengeId") != null ? ((Number) datos.get("challengeId")).intValue() : 0;
-            String donorName = datos != null && datos.get("donorName") != null ? (String) datos.get("donorName") : "";
+            String donorName = datos != null && datos.get("donorName") != null ? datos.get("donorName").toString() : "";
             double amount = datos != null && datos.get("amount") != null ? ((Number) datos.get("amount")).doubleValue() : 0;
+            Integer userId = datos != null && datos.get("userId") != null ? ((Number) datos.get("userId")).intValue() : null;
 
             if (challengeId <= 0 || donorName.isEmpty() || amount <= 0) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -52,7 +53,7 @@ public class DonateServlet extends HttpServlet {
                 return;
             }
 
-            donationProcessor.donar(challengeId, donorName, amount);
+            donationProcessor.donar(challengeId, donorName, amount, userId);
 
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("ok", true);

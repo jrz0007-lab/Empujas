@@ -1,7 +1,6 @@
 package com.challenge.controller;
 
-import com.challenge.model.Challenge;
-import com.challenge.model.ChallengeCreator;
+import com.challenge.model.FavoriteManager;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -14,10 +13,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@WebServlet("/api/create-challenge")
-public class CreateChallengeServlet extends HttpServlet {
+@WebServlet("/api/toggle-favorite")
+public class ToggleFavoriteServlet extends HttpServlet {
 
-    private final ChallengeCreator challengeCreator = new ChallengeCreator();
+    private final FavoriteManager favoriteManager = new FavoriteManager();
     private final Gson gson = new Gson();
 
     @Override
@@ -38,32 +37,25 @@ public class CreateChallengeServlet extends HttpServlet {
 
             Map<String, Object> datos = gson.fromJson(jsonRecibido.toString(), Map.class);
 
-            String title = datos != null && datos.get("title") != null ? datos.get("title").toString().trim() : "";
-            String description = datos != null && datos.get("description") != null ? datos.get("description").toString().trim() : "";
-            double goalAmount = datos != null && datos.get("goalAmount") != null ? ((Number) datos.get("goalAmount")).doubleValue() : 0;
-            int creatorId = datos != null && datos.get("creatorId") != null ? ((Number) datos.get("creatorId")).intValue() : 0;
-            String videoUrl = datos != null && datos.get("videoUrl") != null ? datos.get("videoUrl").toString().trim() : "";
-            String imageUrl = datos != null && datos.get("imageUrl") != null ? datos.get("imageUrl").toString().trim() : "";
+            int userId = datos != null && datos.get("userId") != null ? ((Number) datos.get("userId")).intValue() : 0;
+            int challengeId = datos != null && datos.get("challengeId") != null ? ((Number) datos.get("challengeId")).intValue() : 0;
 
-            if (title.isEmpty() || description.isEmpty() || goalAmount <= 0 || creatorId <= 0) {
+            if (userId <= 0 || challengeId <= 0) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 
                 Map<String, Object> error = new HashMap<>();
                 error.put("ok", false);
-                error.put("mensaje", "Todos los campos son obligatorios");
+                error.put("mensaje", "Usuario y reto requeridos");
 
                 response.getWriter().write(gson.toJson(error));
                 return;
             }
 
-            Challenge challenge = challengeCreator.crear(title, description, goalAmount, creatorId,
-                videoUrl.isEmpty() ? null : videoUrl,
-                imageUrl.isEmpty() ? null : imageUrl);
+            favoriteManager.toggle(userId, challengeId);
 
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("ok", true);
-            respuesta.put("mensaje", "Reto creado exitosamente");
-            respuesta.put("challenge", challenge);
+            respuesta.put("mensaje", "Favorito actualizado");
 
             response.getWriter().write(gson.toJson(respuesta));
 
@@ -72,7 +64,7 @@ public class CreateChallengeServlet extends HttpServlet {
 
             Map<String, Object> error = new HashMap<>();
             error.put("ok", false);
-            error.put("mensaje", "Error al crear reto");
+            error.put("mensaje", "Error al alternar favorito");
             error.put("detalle", e.getMessage());
 
             response.getWriter().write(gson.toJson(error));

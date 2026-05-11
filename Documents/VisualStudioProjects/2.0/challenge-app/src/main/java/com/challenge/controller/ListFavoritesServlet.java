@@ -14,8 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet("/api/challenges")
-public class ListChallengesServlet extends HttpServlet {
+@WebServlet("/api/favorites")
+public class ListFavoritesServlet extends HttpServlet {
 
     private final ChallengeLister challengeLister = new ChallengeLister();
     private final Gson gson = new Gson();
@@ -27,22 +27,20 @@ public class ListChallengesServlet extends HttpServlet {
         response.setContentType("application/json;charset=UTF-8");
 
         try {
-            String status = request.getParameter("status");
-            String creatorId = request.getParameter("creatorId");
             String userIdParam = request.getParameter("userId");
 
-            Integer userId = userIdParam != null && !userIdParam.isEmpty()
-                ? Integer.parseInt(userIdParam) : null;
+            if (userIdParam == null || userIdParam.isEmpty()) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 
-            List<Challenge> resultados;
+                Map<String, Object> error = new HashMap<>();
+                error.put("ok", false);
+                error.put("mensaje", "Usuario requerido");
 
-            if (creatorId != null && !creatorId.isEmpty()) {
-                resultados = challengeLister.listarPorCreador(Integer.parseInt(creatorId), userId);
-            } else if (status != null && !status.isEmpty()) {
-                resultados = challengeLister.listarPorEstado(status, userId);
-            } else {
-                resultados = challengeLister.listarTodos(userId);
+                response.getWriter().write(gson.toJson(error));
+                return;
             }
+
+            List<Challenge> resultados = challengeLister.listarFavoritos(Integer.parseInt(userIdParam));
 
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("ok", true);
@@ -56,7 +54,7 @@ public class ListChallengesServlet extends HttpServlet {
 
             Map<String, Object> error = new HashMap<>();
             error.put("ok", false);
-            error.put("mensaje", "Error al obtener retos");
+            error.put("mensaje", "Error al obtener favoritos");
             error.put("detalle", e.getMessage());
 
             response.getWriter().write(gson.toJson(error));

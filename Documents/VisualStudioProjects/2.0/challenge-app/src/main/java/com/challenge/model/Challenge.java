@@ -10,8 +10,10 @@ public class Challenge {
     private String creatorName;
     private String status;
     private String videoUrl;
+    private String imageUrl;
     private String createdAt;
     private int supporterCount;
+    private boolean favorited;
 
     public Challenge() {
     }
@@ -34,10 +36,14 @@ public class Challenge {
     public void setStatus(String status) { this.status = status; }
     public String getVideoUrl() { return videoUrl; }
     public void setVideoUrl(String videoUrl) { this.videoUrl = videoUrl; }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
     public int getSupporterCount() { return supporterCount; }
     public void setSupporterCount(int supporterCount) { this.supporterCount = supporterCount; }
+    public boolean isFavorited() { return favorited; }
+    public void setFavorited(boolean favorited) { this.favorited = favorited; }
 
     public double getProgressPercent() {
         if (goalAmount <= 0) return 0;

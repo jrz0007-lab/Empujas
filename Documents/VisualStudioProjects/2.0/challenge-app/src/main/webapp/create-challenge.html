@@ -13,7 +13,7 @@
                 <span class="logo-icon">&#9878;</span>
                 <span class="logo-text">EMpujas</span>
             </a>
-            <div class="nav-links">
+            <div class="nav-links" id="navLinks">
                 <a href="dashboard.html" class="btn btn-outline">Mi Panel</a>
                 <a href="/" class="btn btn-outline">Inicio</a>
             </div>
@@ -21,31 +21,82 @@
     </nav>
 
     <main class="container form-page">
-        <h1>Crear Nuevo Reto</h1>
-        <div class="warning-banner">
-            <span class="warning-icon">&#9888;</span>
-            <span>Los retos deben ser legales, positivos y verificables mediante video. Asegúrate de que tu objetivo sea claro y alcanzable.</span>
+        <div class="page-header">
+            <h1>&#128640; Lanza tu Reto</h1>
+            <p class="header-subtitle">Cuéntale al mundo tu meta y consigue financiación para lograrla</p>
         </div>
 
-        <form id="createChallengeForm" class="create-form">
-            <div class="form-group">
-                <label for="challengeTitle">Título del Reto</label>
-                <input type="text" id="challengeTitle" placeholder="Ej: Aprenderé a tocar la guitarra en 30 días" required>
+        <form id="createChallengeForm" class="create-form kickstarter-form">
+            <div class="form-section">
+                <div class="section-icon">&#128196;</div>
+                <div class="section-content">
+                    <h2>¿Cuál es tu reto?</h2>
+                    <div class="form-group">
+                        <label for="challengeTitle">Título del Reto</label>
+                        <input type="text" id="challengeTitle" placeholder="Ej: Construiré una biblioteca comunitaria en mi barrio" required>
+                        <span class="field-hint">Sé claro y directo. Máximo 255 caracteres.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="challengeDesc">Descripción detallada</label>
+                        <textarea id="challengeDesc" rows="10" placeholder="Explica tu reto en detalle: &#10;&#10;- ¿Cuál es el objetivo principal?&#10;- ¿Por qué es importante para ti?&#10;- ¿Cómo planeas lograrlo?&#10;- ¿Qué impacto tendrá?&#10;- ¿Cómo verificará la comunidad que lo has completado?" required></textarea>
+                        <span class="field-hint">Una buena descripción aumenta la confianza de los apoyadores. Sé específico y transparente.</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="challengeDesc">Descripción</label>
-                <textarea id="challengeDesc" rows="5" placeholder="Describe tu reto en detalle. ¿Cuál es el objetivo? ¿Cómo lo lograrás? ¿Cómo lo verificarás?" required></textarea>
+            <div class="form-section">
+                <div class="section-icon">&#128247;</div>
+                <div class="section-content">
+                    <h2>Galería del Reto</h2>
+                    <div class="form-group">
+                        <label for="challengeVideo">URL del Video de Presentación</label>
+                        <input type="url" id="challengeVideo" placeholder="https://www.youtube.com/embed/... o https://..." >
+                        <span class="field-hint">Un video explicativo ayuda a conectar con los apoyadores. Sube tu video a YouTube y pega el enlace.</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="challengeImage">URL de la Imagen de Portada</label>
+                        <input type="url" id="challengeImage" placeholder="https://ejemplo.com/imagen.jpg" >
+                        <span class="field-hint">Una imagen impactante hará que tu reto destaque. Recomendado: 1200x630px.</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="challengeGoal">Meta de Financiación (&euro;)</label>
-                <input type="number" id="challengeGoal" placeholder="0.00" min="1" step="0.01" required>
+            <div class="form-section">
+                <div class="section-icon">&#128176;</div>
+                <div class="section-content">
+                    <h2>Meta de Financiación</h2>
+                    <div class="form-group">
+                        <label for="challengeGoal">Cantidad a Recaudar (&euro;)</label>
+                        <div class="input-group">
+                            <span class="input-prefix">&euro;</span>
+                            <input type="number" id="challengeGoal" placeholder="0.00" min="1" step="0.01" required>
+                        </div>
+                        <span class="field-hint">Calcula cuánto necesitas realmente para cumplir tu reto. Sé realista.</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-actions">
+            <div class="form-section preview-section" id="previewSection" style="display:none">
+                <div class="section-icon">&#128065;</div>
+                <div class="section-content">
+                    <h2>Vista Previa</h2>
+                    <div id="previewContent" class="preview-card">
+                        <div id="previewImageContainer" style="display:none" class="preview-image-container">
+                            <img id="previewImage" src="" alt="Preview">
+                        </div>
+                        <h3 id="previewTitle">Título del reto</h3>
+                        <p id="previewDesc" class="preview-desc">Descripción...</p>
+                        <div class="preview-meta">
+                            <span id="previewGoal">Meta: &euro;0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions form-actions-center">
                 <a href="/" class="btn btn-outline">Cancelar</a>
-                <button type="submit" class="btn btn-primary">Crear Reto</button>
+                <button type="submit" class="btn btn-primary btn-lg">&#128640; Publicar Reto</button>
             </div>
         </form>
 
