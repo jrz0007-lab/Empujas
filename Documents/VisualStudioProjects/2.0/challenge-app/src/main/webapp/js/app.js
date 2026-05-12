@@ -62,7 +62,7 @@ function updateNavbar() {
         if (getIsAdmin()) {
             adminBtn = '<button class="btn btn-danger btn-shield" id="adminPanelBtn">\uD83D\uDEE1 Admin</button>';
         }
-        navLinks.innerHTML = adminBtn + '<a href="dashboard.html" class="btn btn-outline">\uD83D\uDCCA Panel</a><a href="#" class="btn btn-primary" id="logoutBtn">Cerrar Sesi\u00f3n</a>';
+        navLinks.innerHTML = adminBtn + '<a href="dashboard.html" class="btn btn-outline">\uD83D\uDCCA Panel</a><a href="create-challenge.html" class="btn btn-primary">\uD83D\uDE80 Nuevo Reto</a><a href="#" class="btn btn-primary" id="logoutBtn">Cerrar Sesi\u00f3n</a>';
         document.getElementById('logoutBtn')?.addEventListener('click', function (e) {
             e.preventDefault();
             sessionStorage.clear();
