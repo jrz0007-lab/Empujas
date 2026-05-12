@@ -96,14 +96,35 @@ function cargarReportesAdmin() {
                     '<p><strong>Reportado por:</strong> ' + rep.reporterName + ' (' + rep.reporterEmail + ')</p>' +
                     '<p><strong>Motivo:</strong> ' + rep.reason + '</p>' +
                     '</div>' +
-                    '</div>';
+                    '<div class="admin-list-actions">' +
+                    '<button class="btn btn-outline btn-sm view-challenge-btn" data-challenge-id="' + rep.challengeId + '">\uD83D\uDC41 Ver Reto</button>' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="admin-list-separator">\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500</div>';
             });
             html += '</div>';
             tabContent.innerHTML = html;
+
+            tabContent.querySelectorAll('.view-challenge-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    verRetoAdmin(parseInt(btn.dataset.challengeId));
+                });
+            });
         })
         .catch(function (error) {
             tabContent.innerHTML = '<div class="resultado error">Error al cargar reportes: ' + error.message + '</div>';
         });
+}
+
+function verRetoAdmin(challengeId) {
+    document.getElementById('adminModal').classList.add('hidden');
+    var path = window.location.pathname;
+    if (path === '/' || path.endsWith('index.html') || path === '') {
+        openDetail(challengeId);
+    } else {
+        sessionStorage.setItem('pendingChallengeId', challengeId);
+        window.location.href = '/';
+    }
 }
 
 function cargarBaneadosAdmin() {
@@ -636,6 +657,14 @@ function cargarRetos() {
             data.resultados.forEach(function (challenge) {
                 grid.appendChild(createChallengeCard(challenge));
             });
+
+            var pendingId = sessionStorage.getItem('pendingChallengeId');
+            if (pendingId) {
+                sessionStorage.removeItem('pendingChallengeId');
+                setTimeout(function () {
+                    openDetail(parseInt(pendingId));
+                }, 300);
+            }
         })
         .catch(function (error) {
             if (estado) estado.textContent = '';

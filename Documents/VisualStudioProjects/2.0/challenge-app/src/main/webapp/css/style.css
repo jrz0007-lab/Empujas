@@ -1206,17 +1206,19 @@ body.auth-page {
 }
 
 .btn-shield {
-    background: #dc2626;
-    color: #ffffff;
-    border-color: #dc2626;
+    background: #dc2626 !important;
+    color: #ffffff !important;
+    border-color: #dc2626 !important;
     font-size: 0.8rem;
     padding: 0.4rem 0.8rem;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.5);
 }
 
 .btn-shield:hover {
-    background: #b91c1c;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+    background: #991b1b !important;
+    border-color: #991b1b !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(220, 38, 38, 0.6);
 }
 
 .modal-sm {
@@ -1273,9 +1275,37 @@ body.auth-page {
     transition: all 0.2s;
 }
 
+.admin-list-item:not(:last-child) {
+    border-bottom: 2px dashed #d1d5db;
+    border-radius: 0.5rem 0.5rem 0 0;
+    margin-bottom: 0;
+}
+
 .admin-list-item:hover {
     border-color: #d1d5db;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.admin-list-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.view-challenge-btn {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.7rem;
+}
+
+.admin-list-separator {
+    text-align: center;
+    color: #d1d5db;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    padding: 0.25rem 0;
+    user-select: none;
 }
 
 .admin-list-header {
