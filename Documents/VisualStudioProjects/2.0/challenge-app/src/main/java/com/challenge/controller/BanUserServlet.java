@@ -1,5 +1,6 @@
 package com.challenge.controller;
 
+import com.challenge.model.AdminActionManager;
 import com.challenge.model.UserManager;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
@@ -17,6 +18,7 @@ import java.util.Map;
 public class BanUserServlet extends HttpServlet {
 
     private final UserManager userManager = new UserManager();
+    private final AdminActionManager adminActionManager = new AdminActionManager();
     private final Gson gson = new Gson();
 
     @Override
@@ -39,6 +41,7 @@ public class BanUserServlet extends HttpServlet {
 
             int adminUserId = datos != null && datos.get("adminUserId") != null ? ((Number) datos.get("adminUserId")).intValue() : 0;
             int targetUserId = datos != null && datos.get("targetUserId") != null ? ((Number) datos.get("targetUserId")).intValue() : 0;
+            String reason = datos != null && datos.get("reason") != null ? (String) datos.get("reason") : "";
 
             if (adminUserId == 0 || targetUserId == 0) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -62,7 +65,20 @@ public class BanUserServlet extends HttpServlet {
                 return;
             }
 
-            userManager.banear(adminUserId, targetUserId);
+            if (reason.isEmpty()) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
+                Map<String, Object> error = new HashMap<>();
+                error.put("ok", false);
+                error.put("mensaje", "Debes proporcionar un motivo para el ban");
+
+                response.getWriter().write(gson.toJson(error));
+                return;
+            }
+
+            String targetEmail = userManager.obtenerEmailPorId(targetUserId);
+            userManager.banear(adminUserId, targetUserId, reason);
+            adminActionManager.registrarAccion(adminUserId, "ban", targetUserId, targetEmail, null, reason);
 
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("ok", true);

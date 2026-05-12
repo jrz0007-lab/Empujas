@@ -46,6 +46,7 @@ public class DatabaseInitializer implements ServletContextListener {
             try { stmt.executeUpdate("ALTER TABLE challenges ADD COLUMN video_url VARCHAR(500)"); } catch (Exception ignored) {}
             try { stmt.executeUpdate("ALTER TABLE users ADD COLUMN is_admin TINYINT(1) DEFAULT 0"); } catch (Exception ignored) {}
             try { stmt.executeUpdate("ALTER TABLE users ADD COLUMN banned TINYINT(1) DEFAULT 0"); } catch (Exception ignored) {}
+            try { stmt.executeUpdate("ALTER TABLE users ADD COLUMN ban_reason TEXT DEFAULT NULL"); } catch (Exception ignored) {}
 
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS favorites (" +
                 "id INT AUTO_INCREMENT PRIMARY KEY, " +
@@ -64,6 +65,17 @@ public class DatabaseInitializer implements ServletContextListener {
                 "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
                 "FOREIGN KEY (challenge_id) REFERENCES challenges(id) ON DELETE CASCADE, " +
                 "FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE)");
+
+            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS admin_actions (" +
+                "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "admin_id INT NOT NULL, " +
+                "action_type VARCHAR(30) NOT NULL, " +
+                "target_user_id INT, " +
+                "target_user_email VARCHAR(255), " +
+                "target_challenge_id INT, " +
+                "reason TEXT NOT NULL, " +
+                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE)");
 
             stmt.executeUpdate("UPDATE users SET password = '1234' WHERE email IN ('demo@example.com', 'challenger@example.com')");
             stmt.executeUpdate("INSERT INTO users (id, username, email, password, is_admin) VALUES " +

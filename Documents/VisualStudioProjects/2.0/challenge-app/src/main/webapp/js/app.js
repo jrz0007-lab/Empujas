@@ -48,13 +48,221 @@ function updateNavbar() {
     if (!navLinks) return;
     var userId = getUserId();
     if (userId) {
-        navLinks.innerHTML = '<a href="dashboard.html" class="btn btn-outline">\uD83D\uDCCA Panel</a><a href="#" class="btn btn-primary" id="logoutBtn">Cerrar Sesi\u00f3n</a>';
+        var adminBtn = '';
+        if (getIsAdmin()) {
+            adminBtn = '<button class="btn btn-danger btn-shield" id="adminPanelBtn">\uD83D\uDEE1 Admin</button>';
+        }
+        navLinks.innerHTML = adminBtn + '<a href="dashboard.html" class="btn btn-outline">\uD83D\uDCCA Panel</a><a href="#" class="btn btn-primary" id="logoutBtn">Cerrar Sesi\u00f3n</a>';
         document.getElementById('logoutBtn')?.addEventListener('click', function (e) {
             e.preventDefault();
             sessionStorage.clear();
             window.location.href = '/';
         });
+        document.getElementById('adminPanelBtn')?.addEventListener('click', function () {
+            abrirAdminPanel();
+        });
     }
+}
+
+function abrirAdminPanel() {
+    var modal = document.getElementById('adminModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    document.getElementById('adminTabContent').innerHTML = '<p class="estado">Cargando...</p>';
+    cargarReportesAdmin();
+}
+
+function cargarReportesAdmin() {
+    var tabContent = document.getElementById('adminTabContent');
+    tabContent.innerHTML = '<p class="estado">Cargando reportes...</p>';
+
+    fetch(API_BASE + '/api/admin/reports')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (!data.ok || !data.reportes || data.reportes.length === 0) {
+                tabContent.innerHTML = '<div class="estado">No hay reportes de usuarios.</div>';
+                return;
+            }
+
+            var html = '<div class="admin-list">';
+            data.reportes.forEach(function (rep) {
+                html += '<div class="admin-list-item">' +
+                    '<div class="admin-list-header">' +
+                    '<span class="admin-list-badge">\uD83D\uDEA9 Reporte #' + rep.id + '</span>' +
+                    '<span class="admin-list-date">' + formatDate(rep.createdAt) + '</span>' +
+                    '</div>' +
+                    '<div class="admin-list-body">' +
+                    '<p><strong>Reto:</strong> ' + rep.challengeTitle + ' (ID: ' + rep.challengeId + ')</p>' +
+                    '<p><strong>Reportado por:</strong> ' + rep.reporterName + ' (' + rep.reporterEmail + ')</p>' +
+                    '<p><strong>Motivo:</strong> ' + rep.reason + '</p>' +
+                    '</div>' +
+                    '</div>';
+            });
+            html += '</div>';
+            tabContent.innerHTML = html;
+        })
+        .catch(function (error) {
+            tabContent.innerHTML = '<div class="resultado error">Error al cargar reportes: ' + error.message + '</div>';
+        });
+}
+
+function cargarBaneadosAdmin() {
+    var tabContent = document.getElementById('adminTabContent');
+    tabContent.innerHTML = '<p class="estado">Cargando usuarios baneados...</p>';
+
+    fetch(API_BASE + '/api/admin/banned-users')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (!data.ok || !data.usuarios || data.usuarios.length === 0) {
+                tabContent.innerHTML = '<div class="estado">No hay usuarios baneados.</div>';
+                return;
+            }
+
+            var html = '<div class="admin-list">';
+            data.usuarios.forEach(function (user) {
+                html += '<div class="admin-list-item">' +
+                    '<div class="admin-list-header">' +
+                    '<span class="admin-list-badge admin-list-badge-ban">\uD83D\uDEAB Baneado</span>' +
+                    '</div>' +
+                    '<div class="admin-list-body">' +
+                    '<p><strong>Usuario:</strong> ' + user.username + '</p>' +
+                    '<p><strong>Email:</strong> ' + user.email + '</p>' +
+                    '<p><strong>Motivo:</strong> ' + (user.banReason || 'No especificado') + '</p>' +
+                    '<button class="btn btn-outline btn-sm unban-btn" data-user-id="' + user.id + '" data-user-name="' + user.username + '">\uD83D\uDD13 Desbanear</button>' +
+                    '</div>' +
+                    '</div>';
+            });
+            html += '</div>';
+            tabContent.innerHTML = html;
+
+            tabContent.querySelectorAll('.unban-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    if (confirm('\u00bfEst\u00e1s seguro de desbanear a ' + btn.dataset.userName + '?')) {
+                        desbanearUsuario(parseInt(btn.dataset.userId));
+                    }
+                });
+            });
+        })
+        .catch(function (error) {
+            tabContent.innerHTML = '<div class="resultado error">Error al cargar baneados: ' + error.message + '</div>';
+        });
+}
+
+function cargarAccionesAdmin() {
+    var tabContent = document.getElementById('adminTabContent');
+    tabContent.innerHTML = '<p class="estado">Cargando notificaciones...</p>';
+
+    fetch(API_BASE + '/api/admin/actions')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (!data.ok || !data.acciones || data.acciones.length === 0) {
+                tabContent.innerHTML = '<div class="estado">No hay notificaciones enviadas.</div>';
+                return;
+            }
+
+            var html = '<div class="admin-list">';
+            data.acciones.forEach(function (acc) {
+                var actionIcon = acc.actionType === 'ban' ? '\uD83D\uDEAB' : '\uD83D\uDDD1';
+                var actionLabel = acc.actionType === 'ban' ? 'Ban' : 'Eliminaci\u00f3n de reto';
+                var email = acc.targetUserEmail || 'email desconocido';
+
+                html += '<div class="admin-list-item admin-list-email">' +
+                    '<div class="admin-list-header">' +
+                    '<span class="admin-list-badge">' + actionIcon + ' ' + actionLabel + '</span>' +
+                    '<span class="admin-list-date">' + formatDate(acc.createdAt) + '</span>' +
+                    '</div>' +
+                    '<div class="admin-list-body">' +
+                    '<p>\uD83D\uDCEE <strong>Para:</strong> ' + email + '</p>' +
+                    '<p>\uD83D\uDCE4 <strong>Asunto:</strong> ' + (acc.actionType === 'ban' ? 'Has sido baneado de EMpujas' : 'Tu reto ha sido eliminado de EMpujas') + '</p>' +
+                    '<p>\uD83D\uDCDD <strong>Mensaje:</strong> ' + acc.reason + '</p>' +
+                    '<p class="admin-list-admin">\u2014 Administrador: ' + acc.adminName + '</p>' +
+                    '</div>' +
+                    '</div>';
+            });
+            html += '</div>';
+            tabContent.innerHTML = html;
+        })
+        .catch(function (error) {
+            tabContent.innerHTML = '<div class="resultado error">Error al cargar notificaciones: ' + error.message + '</div>';
+        });
+}
+
+function desbanearUsuario(targetUserId) {
+    var adminUserId = getUserId();
+
+    fetch(API_BASE + '/api/admin/unban', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminUserId: parseInt(adminUserId), targetUserId: targetUserId })
+    })
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+        if (data.ok) {
+            alert('Usuario desbaneado correctamente');
+            cargarBaneadosAdmin();
+        } else {
+            alert('Error: ' + data.mensaje);
+        }
+    })
+    .catch(function (error) {
+        alert('Error de conexi\u00f3n: ' + error.message);
+    });
+}
+
+function openReasonModal(actionType, targetName) {
+    return new Promise(function (resolve, reject) {
+        var modal = document.getElementById('reasonModal');
+        var title = document.getElementById('reasonModalTitle');
+        var desc = document.getElementById('reasonModalDesc');
+        var input = document.getElementById('reasonInput');
+        var resultDiv = document.getElementById('reasonResultado');
+        var form = document.getElementById('reasonForm');
+
+        input.value = '';
+        resultDiv.innerHTML = '';
+
+        if (actionType === 'ban') {
+            title.textContent = '\uD83D\uDEAB Banear a ' + targetName;
+            desc.textContent = 'Est\u00e1s a punto de banear a "' + targetName + '". Es obligatorio explicar el motivo.';
+        } else {
+            title.textContent = '\uD83D\uDDD1 Eliminar reto de ' + targetName;
+            desc.textContent = 'Est\u00e1s a punto de eliminar el reto de "' + targetName + '". Es obligatorio explicar el motivo.';
+        }
+
+        modal.classList.remove('hidden');
+        input.focus();
+
+        function cleanup() {
+            modal.classList.add('hidden');
+            form.removeEventListener('submit', onSubmit);
+            document.getElementById('cancelReason').removeEventListener('click', onCancel);
+        }
+
+        function onSubmit(e) {
+            e.preventDefault();
+            var reason = input.value.trim();
+            if (!reason) {
+                showError('reasonResultado', 'Debes escribir un motivo obligatorio.');
+                return;
+            }
+            cleanup();
+            resolve(reason);
+        }
+
+        function onCancel() {
+            cleanup();
+            reject(new Error('Acci\u00f3n cancelada'));
+        }
+
+        form.addEventListener('submit', onSubmit);
+        document.getElementById('cancelReason').addEventListener('click', onCancel);
+
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                onCancel();
+            }
+        });
+    });
 }
 
 function createChallengeCard(challenge) {
@@ -80,7 +288,7 @@ function createChallengeCard(challenge) {
     var adminActions = '';
     if (isAdmin) {
         adminActions = '\n        <div class="admin-actions">\n' +
-            '            <button class="btn btn-danger btn-sm delete-challenge" data-id="' + challenge.id + '">\uD83D\uDDD1 Eliminar Reto</button>\n' +
+            '            <button class="btn btn-danger btn-sm delete-challenge" data-id="' + challenge.id + '" data-creator="' + challenge.creatorName + '">\uD83D\uDDD1 Eliminar Reto</button>\n' +
             '            <button class="btn btn-outline-danger btn-sm ban-creator" data-creator-id="' + challenge.creatorId + '" data-creator-name="' + challenge.creatorName + '">\uD83D\uDEAB Banear ' + challenge.creatorName + '</button>\n' +
             '        </div>';
     }
@@ -146,18 +354,24 @@ function createChallengeCard(challenge) {
     var deleteBtn = card.querySelector('.delete-challenge');
     if (deleteBtn) {
         deleteBtn.addEventListener('click', function () {
-            if (confirm('\u00bfEst\u00e1s seguro de eliminar este reto?')) {
-                eliminarReto(challenge.id);
-            }
+            openReasonModal('delete', deleteBtn.dataset.creator)
+                .then(function (reason) {
+                    eliminarReto(challenge.id, reason);
+                })
+                .catch(function () {});
         });
     }
 
     var banBtn = card.querySelector('.ban-creator');
     if (banBtn) {
         banBtn.addEventListener('click', function () {
-            if (confirm('\u00bfEst\u00e1s seguro de banear a ' + challenge.creatorName + '? Se borrar\u00e1n todos sus datos.')) {
-                banearUsuario(challenge.creatorId);
-            }
+            var creatorId = parseInt(banBtn.dataset.creatorId);
+            var creatorName = banBtn.dataset.creatorName;
+            openReasonModal('ban', creatorName)
+                .then(function (reason) {
+                    banearUsuario(creatorId, reason);
+                })
+                .catch(function () {});
         });
     }
 
@@ -203,13 +417,13 @@ function toggleFav(challengeId, btn) {
     });
 }
 
-function eliminarReto(challengeId) {
+function eliminarReto(challengeId, reason) {
     var userId = getUserId();
 
     fetch(API_BASE + '/api/delete-challenge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ challengeId: challengeId, userId: parseInt(userId) })
+        body: JSON.stringify({ challengeId: challengeId, userId: parseInt(userId), reason: reason })
     })
     .then(function (response) { return response.json(); })
     .then(function (data) {
@@ -225,13 +439,13 @@ function eliminarReto(challengeId) {
     });
 }
 
-function banearUsuario(targetUserId) {
+function banearUsuario(targetUserId, reason) {
     var adminUserId = getUserId();
 
     fetch(API_BASE + '/api/ban-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adminUserId: parseInt(adminUserId), targetUserId: targetUserId })
+        body: JSON.stringify({ adminUserId: parseInt(adminUserId), targetUserId: targetUserId, reason: reason })
     })
     .then(function (response) { return response.json(); })
     .then(function (data) {
@@ -354,20 +568,24 @@ function openDetail(challengeId) {
             var deleteBtn = document.getElementById('detailDeleteBtn');
             if (deleteBtn) {
                 deleteBtn.addEventListener('click', function () {
-                    if (confirm('\u00bfEst\u00e1s seguro de eliminar este reto?')) {
-                        modal.classList.add('hidden');
-                        eliminarReto(c.id);
-                    }
+                    modal.classList.add('hidden');
+                    openReasonModal('delete', c.creatorName)
+                        .then(function (reason) {
+                            eliminarReto(c.id, reason);
+                        })
+                        .catch(function () {});
                 });
             }
 
             var banBtn = document.getElementById('detailBanBtn');
             if (banBtn) {
                 banBtn.addEventListener('click', function () {
-                    if (confirm('\u00bfEst\u00e1s seguro de banear a ' + c.creatorName + '? Se borrar\u00e1n todos sus datos.')) {
-                        modal.classList.add('hidden');
-                        banearUsuario(c.creatorId);
-                    }
+                    modal.classList.add('hidden');
+                    openReasonModal('ban', c.creatorName)
+                        .then(function (reason) {
+                            banearUsuario(c.creatorId, reason);
+                        })
+                        .catch(function () {});
                 });
             }
 
@@ -719,6 +937,21 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('reportModal').classList.add('hidden');
     });
 
+    document.getElementById('closeAdmin')?.addEventListener('click', function () {
+        document.getElementById('adminModal').classList.add('hidden');
+    });
+
+    document.querySelectorAll('.admin-tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            document.querySelectorAll('.admin-tab').forEach(function (t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+            var tabName = tab.dataset.tab;
+            if (tabName === 'reports') cargarReportesAdmin();
+            else if (tabName === 'banned') cargarBaneadosAdmin();
+            else if (tabName === 'notifications') cargarAccionesAdmin();
+        });
+    });
+
     document.getElementById('detailModal')?.addEventListener('click', function (e) {
         if (e.target === this) this.classList.add('hidden');
     });
@@ -728,6 +961,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.getElementById('reportModal')?.addEventListener('click', function (e) {
+        if (e.target === this) this.classList.add('hidden');
+    });
+
+    document.getElementById('adminModal')?.addEventListener('click', function (e) {
         if (e.target === this) this.classList.add('hidden');
     });
 });

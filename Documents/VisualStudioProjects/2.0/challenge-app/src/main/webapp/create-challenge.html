@@ -103,6 +103,39 @@
         <div id="createResultado" class="resultado"></div>
     </main>
 
+    <div id="reasonModal" class="modal-overlay hidden">
+        <div class="modal-content modal-sm">
+            <h3 id="reasonModalTitle">&#128681; Motivo Obligatorio</h3>
+            <p id="reasonModalDesc" class="donate-subtitle"></p>
+            <form id="reasonForm">
+                <div class="form-group">
+                    <label for="reasonInput">Explica el motivo:</label>
+                    <textarea id="reasonInput" placeholder="Escribe el motivo de esta acci&oacute;n..." rows="4" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="cancelReason">Cancelar</button>
+                    <button type="submit" class="btn btn-danger" id="confirmReason">&#128680; Confirmar</button>
+                </div>
+            </form>
+            <div id="reasonResultado" class="donate-resultado"></div>
+        </div>
+    </div>
+
+    <div id="adminModal" class="modal-overlay hidden">
+        <div class="modal-content modal-lg">
+            <button class="modal-close" id="closeAdmin">&times;</button>
+            <div id="adminContent">
+                <h2>&#128737; Panel de Administraci&oacute;n</h2>
+                <div class="admin-tabs">
+                    <button class="admin-tab active" data-tab="reports">&#128681; Reportes</button>
+                    <button class="admin-tab" data-tab="banned">&#128274; Baneados</button>
+                    <button class="admin-tab" data-tab="notifications">&#128231; Notificaciones</button>
+                </div>
+                <div id="adminTabContent" class="admin-tab-content"></div>
+            </div>
+        </div>
+    </div>
+
     <script src="js/app.js"></script>
 </body>
 </html>
