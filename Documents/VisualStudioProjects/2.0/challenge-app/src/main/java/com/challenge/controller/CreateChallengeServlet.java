@@ -2,6 +2,7 @@ package com.challenge.controller;
 
 import com.challenge.model.Challenge;
 import com.challenge.model.ChallengeCreator;
+import com.challenge.model.UserManager;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class CreateChallengeServlet extends HttpServlet {
 
     private final ChallengeCreator challengeCreator = new ChallengeCreator();
+    private final UserManager userManager = new UserManager();
     private final Gson gson = new Gson();
 
     @Override
@@ -51,6 +53,18 @@ public class CreateChallengeServlet extends HttpServlet {
                 Map<String, Object> error = new HashMap<>();
                 error.put("ok", false);
                 error.put("mensaje", "Todos los campos son obligatorios");
+
+                response.getWriter().write(gson.toJson(error));
+                return;
+            }
+
+            if (userManager.estaBaneado(creatorId)) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+
+                Map<String, Object> error = new HashMap<>();
+                error.put("ok", false);
+                error.put("banned", true);
+                error.put("mensaje", "Tu cuenta ha sido baneada. No puedes crear retos.");
 
                 response.getWriter().write(gson.toJson(error));
                 return;

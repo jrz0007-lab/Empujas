@@ -1,6 +1,7 @@
 package com.challenge.controller;
 
 import com.challenge.model.DonationProcessor;
+import com.challenge.model.UserManager;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,6 +18,7 @@ import java.util.Map;
 public class DonateServlet extends HttpServlet {
 
     private final DonationProcessor donationProcessor = new DonationProcessor();
+    private final UserManager userManager = new UserManager();
     private final Gson gson = new Gson();
 
     @Override
@@ -48,6 +50,18 @@ public class DonateServlet extends HttpServlet {
                 Map<String, Object> error = new HashMap<>();
                 error.put("ok", false);
                 error.put("mensaje", "Todos los campos son obligatorios");
+
+                response.getWriter().write(gson.toJson(error));
+                return;
+            }
+
+            if (userId != null && userManager.estaBaneado(userId)) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+
+                Map<String, Object> error = new HashMap<>();
+                error.put("ok", false);
+                error.put("banned", true);
+                error.put("mensaje", "Tu cuenta ha sido baneada. No puedes donar.");
 
                 response.getWriter().write(gson.toJson(error));
                 return;

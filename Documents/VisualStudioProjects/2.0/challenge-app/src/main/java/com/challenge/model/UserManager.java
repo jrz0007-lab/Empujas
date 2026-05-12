@@ -29,6 +29,8 @@ public class UserManager {
             throw new RuntimeException("Error al verificar permisos", e);
         }
 
+        eliminarRetosDeUsuario(targetUserId);
+
         String softBan = "UPDATE users SET banned = 1, ban_reason = ? WHERE id = ?";
 
         try (Connection con = ConexionBD.getConnection();
@@ -46,6 +48,37 @@ public class UserManager {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException("Error al banear usuario", e);
+        }
+    }
+
+    public void eliminarRetosDeUsuario(int userId) {
+        String sql = "DELETE FROM challenges WHERE creator_id = ?";
+
+        try (Connection con = ConexionBD.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al eliminar retos del usuario", e);
+        }
+    }
+
+    public boolean estaBaneado(int userId) {
+        String sql = "SELECT banned FROM users WHERE id = ?";
+
+        try (Connection con = ConexionBD.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() && rs.getInt("banned") == 1;
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al verificar ban", e);
         }
     }
 

@@ -1,6 +1,7 @@
 package com.challenge.controller;
 
 import com.challenge.model.FavoriteManager;
+import com.challenge.model.UserManager;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,6 +18,7 @@ import java.util.Map;
 public class ToggleFavoriteServlet extends HttpServlet {
 
     private final FavoriteManager favoriteManager = new FavoriteManager();
+    private final UserManager userManager = new UserManager();
     private final Gson gson = new Gson();
 
     @Override
@@ -46,6 +48,18 @@ public class ToggleFavoriteServlet extends HttpServlet {
                 Map<String, Object> error = new HashMap<>();
                 error.put("ok", false);
                 error.put("mensaje", "Usuario y reto requeridos");
+
+                response.getWriter().write(gson.toJson(error));
+                return;
+            }
+
+            if (userManager.estaBaneado(userId)) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+
+                Map<String, Object> error = new HashMap<>();
+                error.put("ok", false);
+                error.put("banned", true);
+                error.put("mensaje", "Tu cuenta ha sido baneada.");
 
                 response.getWriter().write(gson.toJson(error));
                 return;

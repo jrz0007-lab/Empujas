@@ -1,6 +1,7 @@
 package com.challenge.controller;
 
 import com.challenge.model.ProfileLoader;
+import com.challenge.model.UserManager;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -16,6 +17,7 @@ import java.util.Map;
 public class ProfileServlet extends HttpServlet {
 
     private final ProfileLoader profileLoader = new ProfileLoader();
+    private final UserManager userManager = new UserManager();
     private final Gson gson = new Gson();
 
     @Override
@@ -39,6 +41,19 @@ public class ProfileServlet extends HttpServlet {
             }
 
             int userId = Integer.parseInt(userIdStr);
+
+            if (userManager.estaBaneado(userId)) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+
+                Map<String, Object> error = new HashMap<>();
+                error.put("ok", false);
+                error.put("banned", true);
+                error.put("mensaje", "Tu cuenta ha sido baneada.");
+
+                response.getWriter().write(gson.toJson(error));
+                return;
+            }
+
             Map<String, Object> resumen = profileLoader.cargarResumen(userId);
 
             Map<String, Object> respuesta = new HashMap<>();

@@ -2,6 +2,7 @@ package com.challenge.controller;
 
 import com.challenge.model.Challenge;
 import com.challenge.model.ChallengeLister;
+import com.challenge.model.UserManager;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class ListFavoritesServlet extends HttpServlet {
 
     private final ChallengeLister challengeLister = new ChallengeLister();
+    private final UserManager userManager = new UserManager();
     private final Gson gson = new Gson();
 
     @Override
@@ -40,7 +42,21 @@ public class ListFavoritesServlet extends HttpServlet {
                 return;
             }
 
-            List<Challenge> resultados = challengeLister.listarFavoritos(Integer.parseInt(userIdParam));
+            int userId = Integer.parseInt(userIdParam);
+
+            if (userManager.estaBaneado(userId)) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+
+                Map<String, Object> error = new HashMap<>();
+                error.put("ok", false);
+                error.put("banned", true);
+                error.put("mensaje", "Tu cuenta ha sido baneada.");
+
+                response.getWriter().write(gson.toJson(error));
+                return;
+            }
+
+            List<Challenge> resultados = challengeLister.listarFavoritos(userId);
 
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("ok", true);

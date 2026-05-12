@@ -1,6 +1,7 @@
 package com.challenge.controller;
 
 import com.challenge.model.ReportManager;
+import com.challenge.model.UserManager;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,6 +18,7 @@ import java.util.Map;
 public class ReportChallengeServlet extends HttpServlet {
 
     private final ReportManager reportManager = new ReportManager();
+    private final UserManager userManager = new UserManager();
     private final Gson gson = new Gson();
 
     @Override
@@ -47,6 +49,18 @@ public class ReportChallengeServlet extends HttpServlet {
                 Map<String, Object> error = new HashMap<>();
                 error.put("ok", false);
                 error.put("mensaje", "Datos incompletos");
+
+                response.getWriter().write(gson.toJson(error));
+                return;
+            }
+
+            if (userManager.estaBaneado(userId)) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+
+                Map<String, Object> error = new HashMap<>();
+                error.put("ok", false);
+                error.put("banned", true);
+                error.put("mensaje", "Tu cuenta ha sido baneada.");
 
                 response.getWriter().write(gson.toJson(error));
                 return;

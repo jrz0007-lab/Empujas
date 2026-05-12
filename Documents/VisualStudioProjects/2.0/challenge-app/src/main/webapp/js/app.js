@@ -26,6 +26,16 @@ function showSuccess(elementId, message) {
     }
 }
 
+function checkBanned(data) {
+    if (data && data.banned) {
+        sessionStorage.clear();
+        alert('Tu cuenta ha sido baneada. Has sido desconectado.');
+        window.location.href = '/';
+        return true;
+    }
+    return false;
+}
+
 function clearResultado(elementId) {
     const el = document.getElementById(elementId);
     if (el) {
@@ -420,6 +430,7 @@ function toggleFav(challengeId, btn) {
     })
     .then(function (response) { return response.json(); })
     .then(function (data) {
+        if (checkBanned(data)) return;
         if (data.ok) {
             var isNowFav = btn.dataset.fav === 'true';
             if (isNowFav) {
@@ -511,6 +522,7 @@ function openDetail(challengeId) {
             return response.json();
         })
         .then(function (data) {
+            if (checkBanned(data)) return;
             if (!data.ok) {
                 throw new Error(data.mensaje || 'Error al cargar detalles');
             }
@@ -827,6 +839,7 @@ document.addEventListener('DOMContentLoaded', function () {
             })
                 .then(function (response) { return response.json(); })
                 .then(function (data) {
+                    if (checkBanned(data)) return;
                     if (data.ok) {
                         showSuccess('createResultado', '\u00a1Reto creado con \u00e9xito! Redirigiendo...');
                         setTimeout(function () {
@@ -881,6 +894,7 @@ document.addEventListener('DOMContentLoaded', function () {
             })
                 .then(function (response) { return response.json(); })
                 .then(function (data) {
+                    if (checkBanned(data)) return;
                     if (data.ok) {
                         showSuccess('reportResultado', 'Reporte enviado correctamente. Gracias por ayudar a mantener la comunidad segura.');
                         setTimeout(function () {
@@ -925,6 +939,7 @@ document.addEventListener('DOMContentLoaded', function () {
             })
                 .then(function (response) { return response.json(); })
                 .then(function (data) {
+                    if (checkBanned(data)) return;
                     if (data.ok) {
                         showSuccess('donateResultado', '\u00a1Gracias! Tu donaci\u00f3n de ' + formatCurrency(amount) + ' ha sido procesada.');
                         setTimeout(function () {
@@ -1011,6 +1026,7 @@ function cargarDashboard() {
     fetch(API_BASE + '/api/profile?userId=' + userId)
         .then(function (response) { return response.json(); })
         .then(function (data) {
+            if (checkBanned(data)) return;
             if (data.ok && data.resumen) {
                 document.getElementById('totalCreated').textContent = data.resumen.totalCreated || 0;
                 document.getElementById('totalCompleted').textContent = data.resumen.totalCompleted || 0;
@@ -1024,6 +1040,7 @@ function cargarDashboard() {
     fetch(API_BASE + '/api/favorites?userId=' + userId)
         .then(function (response) { return response.json(); })
         .then(function (data) {
+            if (checkBanned(data)) return;
             if (data.ok) {
                 document.getElementById('totalFavorited').textContent = data.total || 0;
             }
