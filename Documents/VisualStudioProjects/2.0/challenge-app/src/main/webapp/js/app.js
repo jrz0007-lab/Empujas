@@ -127,7 +127,8 @@ function cargarReportesAdmin() {
 }
 
 function verRetoAdmin(challengeId) {
-    document.getElementById('adminModal').classList.add('hidden');
+    var adminModal = document.getElementById('adminModal');
+    if (adminModal) adminModal.classList.add('hidden');
     var path = window.location.pathname;
     if (path === '/' || path.endsWith('index.html') || path === '') {
         openDetail(challengeId);
@@ -863,7 +864,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     updateNavbar();
 
-    if (document.getElementById('challengesGrid') && !document.getElementById('dashboardGrid')) {
+    if (document.getElementById('activeChallengesGrid') && !document.getElementById('dashboardGrid')) {
         cargarRetos();
     }
 

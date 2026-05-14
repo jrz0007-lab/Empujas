@@ -1,5 +1,32 @@
 var API_BASE = window.location.origin;
 
+var FETCH_TIMEOUT_MS = 15000;
+
+function fetchWithTimeout(url, options) {
+    return new Promise(function (resolve, reject) {
+        var controller = new AbortController();
+        var timer = setTimeout(function () {
+            controller.abort();
+            reject(new Error('Tiempo de espera agotado'));
+        }, FETCH_TIMEOUT_MS);
+        options = options || {};
+        options.signal = controller.signal;
+        fetch(url, options)
+            .then(function (r) {
+                clearTimeout(timer);
+                resolve(r);
+            })
+            .catch(function (err) {
+                clearTimeout(timer);
+                if (err.name === 'AbortError') {
+                    reject(new Error('Tiempo de espera agotado'));
+                } else {
+                    reject(err);
+                }
+            });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     var userId = getUserId();
     if (!userId) {
@@ -25,12 +52,15 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    document.getElementById('adminSearchInput').addEventListener('input', function () {
-        var activeTab = document.querySelector('.admin-tab.active');
-        if (activeTab && activeTab.dataset.tab === 'banned') {
-            filtrarBaneados(this.value.trim().toLowerCase());
-        }
-    });
+    var searchInput = document.getElementById('adminSearchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            var activeTab = document.querySelector('.admin-tab.active');
+            if (activeTab && activeTab.dataset.tab === 'banned') {
+                filtrarBaneados(this.value.trim().toLowerCase());
+            }
+        });
+    }
 });
 
 var baneadosData = [];
@@ -39,7 +69,7 @@ function cargarReportesAdmin() {
     var tabContent = document.getElementById('adminTabContent');
     tabContent.innerHTML = '<p class="estado">Cargando reportes...</p>';
 
-    fetch(API_BASE + '/api/admin/reports')
+    fetchWithTimeout(API_BASE + '/api/admin/reports')
         .then(function (r) { return r.json(); })
         .then(function (data) {
             if (!data.ok || !data.reportes || data.reportes.length === 0) {
@@ -82,6 +112,7 @@ function cargarReportesAdmin() {
             });
         })
         .catch(function (error) {
+            console.error('Error cargando reportes:', error);
             tabContent.innerHTML = '<div class="resultado error">Error al cargar reportes: ' + error.message + '</div>';
         });
 }
@@ -90,7 +121,7 @@ function cargarBaneadosAdmin() {
     var tabContent = document.getElementById('adminTabContent');
     tabContent.innerHTML = '<p class="estado">Cargando usuarios baneados...</p>';
 
-    fetch(API_BASE + '/api/admin/banned-users')
+    fetchWithTimeout(API_BASE + '/api/admin/banned-users')
         .then(function (r) { return r.json(); })
         .then(function (data) {
             if (!data.ok || !data.usuarios || data.usuarios.length === 0) {
@@ -103,6 +134,7 @@ function cargarBaneadosAdmin() {
             renderBaneadosTable(baneadosData);
         })
         .catch(function (error) {
+            console.error('Error cargando baneados:', error);
             tabContent.innerHTML = '<div class="resultado error">Error al cargar baneados: ' + error.message + '</div>';
         });
 }
@@ -159,7 +191,7 @@ function cargarAccionesAdmin() {
     var tabContent = document.getElementById('adminTabContent');
     tabContent.innerHTML = '<p class="estado">Cargando notificaciones...</p>';
 
-    fetch(API_BASE + '/api/admin/actions')
+    fetchWithTimeout(API_BASE + '/api/admin/actions')
         .then(function (r) { return r.json(); })
         .then(function (data) {
             if (!data.ok || !data.acciones || data.acciones.length === 0) {
@@ -191,6 +223,7 @@ function cargarAccionesAdmin() {
             tabContent.innerHTML = html;
         })
         .catch(function (error) {
+            console.error('Error cargando notificaciones:', error);
             tabContent.innerHTML = '<div class="resultado error">Error al cargar notificaciones: ' + error.message + '</div>';
         });
 }
@@ -198,7 +231,7 @@ function cargarAccionesAdmin() {
 function desbanearUsuario(targetUserId) {
     var adminUserId = getUserId();
 
-    fetch(API_BASE + '/api/admin/unban', {
+    fetchWithTimeout(API_BASE + '/api/admin/unban', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ adminUserId: parseInt(adminUserId), targetUserId: targetUserId })
