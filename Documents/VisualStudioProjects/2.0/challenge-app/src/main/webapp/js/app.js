@@ -352,7 +352,7 @@ function createChallengeCard(challenge) {
         '        </div>\n' +
         '        <div class="challenge-actions">\n' +
         '            <button class="btn btn-outline view-detail">\uD83D\uDC41 Ver Detalles</button>\n' +
-        '            ' + (isCompleted ? '<button class="btn btn-success view-completed">\uD83C\uDFC6 Ver Logro</button>' : '<button class="btn btn-primary support-btn">\uD83D\uDCB0 Apoyar</button>') + '\n' +
+        '            ' + (isCompleted ? '<button class="btn btn-success view-completed">\uD83C\uDFC6 Ver Logro</button>' : (userId && parseInt(userId) === challenge.creatorId ? '' : '<button class="btn btn-primary support-btn">\uD83D\uDCB0 Apoyar</button>')) + '\n' +
         '            ' + reportBtn + '\n' +
         '        </div>\n' +
         adminActions +
@@ -700,7 +700,7 @@ function openDetail(challengeId) {
                 html += '<button class="btn btn-danger btn-full" id="detailDeleteBtn">\uD83D\uDDD1 Eliminar este Reto</button>';
                 html += '<button class="btn btn-outline-danger btn-full" id="detailBanBtn" style="margin-top:0.5rem">\uD83D\uDEAB Banear a ' + c.creatorName + '</button>';
                 html += '</div>';
-            } else if (!isCompleted) {
+            } else if (!isCompleted && !isCreator) {
                 html += '<button class="btn btn-primary btn-full" id="detailSupportBtn">\uD83D\uDCB0 Apoyar este Reto</button>';
             }
 

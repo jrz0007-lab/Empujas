@@ -1,5 +1,3 @@
-var API_BASE = window.location.origin;
-
 var FETCH_TIMEOUT_MS = 15000;
 
 function fetchWithTimeout(url, options) {
@@ -95,7 +93,7 @@ function cargarReportesAdmin() {
                     '<td class="cell-reason">' + escapeHtml(rep.reason) + '</td>' +
                     '<td class="cell-date">' + formatDate(rep.createdAt) + '</td>' +
                     '<td class="cell-actions">' +
-                    '<button class="btn btn-outline btn-sm view-challenge-btn" data-challenge-id="' + rep.challengeId + '">&#128065; Ver Reto</button>' +
+                    '<button class="btn btn-primary view-challenge-btn" data-challenge-id="' + rep.challengeId + '">&#128065; Ver Reto</button>' +
                     '</td>' +
                     '</tr>';
             });
@@ -158,7 +156,7 @@ function renderBaneadosTable(usuarios) {
             '<td class="cell-email">' + escapeHtml(user.email) + '</td>' +
             '<td class="cell-reason">' + escapeHtml(user.banReason || 'No especificado') + '</td>' +
             '<td class="cell-actions">' +
-            '<button class="btn btn-outline btn-sm unban-btn" data-user-id="' + user.id + '" data-user-name="' + escapeHtml(user.username) + '">&#128274; Desbanear</button>' +
+            '<button class="btn btn-primary unban-btn" data-user-id="' + user.id + '" data-user-name="' + escapeHtml(user.username) + '">&#128274; Desbanear</button>' +
             '</td>' +
             '</tr>';
     });

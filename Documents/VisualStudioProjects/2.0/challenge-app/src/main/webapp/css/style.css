@@ -1339,15 +1339,8 @@ body.auth-page {
 }
 
 .view-challenge-btn {
-    font-size: 0.75rem;
-    padding: 0.3rem 0.7rem;
-    color: #7C3AED;
-    border-color: #7C3AED;
-}
-
-.view-challenge-btn:hover {
-    background: #7C3AED;
-    color: #fff;
+    font-size: 0.875rem;
+    padding: 0.625rem 1.25rem;
 }
 
 .admin-list-separator {
@@ -1408,13 +1401,6 @@ body.auth-page {
 
 .unban-btn {
     margin-top: 0.5rem;
-    color: #7C3AED;
-    border-color: #7C3AED;
-}
-
-.unban-btn:hover {
-    background: #7C3AED;
-    color: #fff;
 }
 
 .challenge-actions {
