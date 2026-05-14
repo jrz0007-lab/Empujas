@@ -69,7 +69,7 @@ function updateNavbar() {
             window.location.href = '/';
         });
         document.getElementById('adminPanelBtn')?.addEventListener('click', function () {
-            abrirAdminPanel();
+            window.location.href = '/admin.html';
         });
     }
 }
@@ -504,6 +504,101 @@ function abrirReporteModal(challengeId, title) {
     modal.classList.remove('hidden');
 }
 
+function abrirCompletionModal(challengeId, currentVideoUrl, currentMessage, detailModal) {
+    var modal = document.getElementById('completionModal');
+    if (!modal) {
+        var body = document.body;
+        var div = document.createElement('div');
+        div.id = 'completionModal';
+        div.className = 'modal-overlay hidden';
+        div.innerHTML = '<div class="modal-content">' +
+            '<button class="modal-close" id="closeCompletion">&times;</button>' +
+            '<h3>&#127942; Video de Logro y Agradecimiento</h3>' +
+            '<p class="donate-subtitle">Comparte el video demostrando que completaste el reto y agradece a tus apoyadores.</p>' +
+            '<form id="completionForm">' +
+            '<div class="form-group">' +
+            '<label for="completionVideoUrl">URL del Video de Logro</label>' +
+            '<input type="url" id="completionVideoUrl" placeholder="https://www.youtube.com/embed/..." value="' + (currentVideoUrl || '') + '">' +
+            '<span class="field-hint">Sube tu video a YouTube y pega el enlace. Solo los apoyadores podr&aacute;n verlo.</span>' +
+            '</div>' +
+            '<div class="form-group">' +
+            '<label for="completionMessage">Mensaje de Agradecimiento</label>' +
+            '<textarea id="completionMessage" rows="4" placeholder="Escribe un mensaje de agradecimiento para tus apoyadores...">' + (currentMessage || '') + '</textarea>' +
+            '</div>' +
+            '<div class="form-actions">' +
+            '<button type="button" class="btn btn-outline" id="cancelCompletion">Cancelar</button>' +
+            '<button type="submit" class="btn btn-success">&#128190; Guardar</button>' +
+            '</div>' +
+            '</form>' +
+            '<div id="completionResultado" class="donate-resultado"></div>' +
+            '</div>';
+        body.appendChild(div);
+
+        document.getElementById('closeCompletion').addEventListener('click', function () {
+            modal.classList.add('hidden');
+        });
+        document.getElementById('cancelCompletion').addEventListener('click', function () {
+            modal.classList.add('hidden');
+        });
+        document.getElementById('completionForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            guardarCompletion(challengeId, modal, detailModal);
+        });
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) modal.classList.add('hidden');
+        });
+    } else {
+        document.getElementById('completionVideoUrl').value = currentVideoUrl || '';
+        document.getElementById('completionMessage').value = currentMessage || '';
+        document.getElementById('completionResultado').innerHTML = '';
+        var oldForm = document.getElementById('completionForm');
+        var newForm = oldForm.cloneNode(true);
+        oldForm.parentNode.replaceChild(newForm, oldForm);
+        newForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            guardarCompletion(challengeId, modal, detailModal);
+        });
+    }
+    modal = document.getElementById('completionModal');
+    modal.classList.remove('hidden');
+}
+
+function guardarCompletion(challengeId, modal, detailModal) {
+    var videoUrl = document.getElementById('completionVideoUrl').value.trim();
+    var message = document.getElementById('completionMessage').value.trim();
+    var resultDiv = document.getElementById('completionResultado');
+    resultDiv.innerHTML = '';
+
+    if (!videoUrl && !message) {
+        resultDiv.innerHTML = '<div class="resultado error">Debes proporcionar al menos un video o un mensaje.</div>';
+        return;
+    }
+
+    fetch(API_BASE + '/api/complete-challenge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            challengeId: challengeId,
+            userId: parseInt(getUserId()),
+            completionVideoUrl: videoUrl,
+            thankYouMessage: message
+        })
+    })
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+        if (data.ok) {
+            modal.classList.add('hidden');
+            detailModal.classList.add('hidden');
+            if (typeof cargarRetos === 'function') cargarRetos();
+        } else {
+            resultDiv.innerHTML = '<div class="resultado error">' + (data.mensaje || 'Error al guardar') + '</div>';
+        }
+    })
+    .catch(function (error) {
+        resultDiv.innerHTML = '<div class="resultado error">Error de conexi&oacute;n: ' + error.message + '</div>';
+    });
+}
+
 function openDetail(challengeId) {
     const modal = document.getElementById('detailModal');
     const content = document.getElementById('detailContent');
@@ -532,14 +627,11 @@ function openDetail(challengeId) {
             const progress = c.currentAmount / c.goalAmount * 100;
             const isCompleted = c.status === 'completed';
             const isAdmin = getIsAdmin();
+            const isCreator = userId && parseInt(userId) === c.creatorId;
+            var hasDonated = data.hasDonated === true;
 
             let html = '<div class="detail-layout">';
             html += '<div class="detail-info">';
-
-            if (isCompleted) {
-                html += '<div class="completed-badge">\u2705 Completado</div>';
-            }
-
             html += '<h2>' + c.title + '</h2>';
             html += '<p class="detail-meta">por ' + c.creatorName + ' \u00b7 ' + formatDate(c.createdAt) + '</p>';
 
@@ -551,6 +643,35 @@ function openDetail(challengeId) {
 
             if (c.videoUrl) {
                 html += '<div class="video-container"><iframe src="' + c.videoUrl + '" frameborder="0" allowfullscreen></iframe></div>';
+            }
+
+            if (isCompleted && (hasDonated || isAdmin || isCreator)) {
+                if (c.completionVideoUrl) {
+                    html += '<h3>\uD83C\uDFC6 Video de Logro</h3>';
+                    html += '<div class="video-container"><iframe src="' + c.completionVideoUrl + '" frameborder="0" allowfullscreen></iframe></div>';
+                }
+                if (c.thankYouMessage) {
+                    html += '<div class="thank-you-message">' +
+                        '<div class="thank-you-icon">\uD83D\uDE4F</div>' +
+                        '<p class="thank-you-text">' + c.thankYouMessage + '</p>' +
+                        '<p class="thank-you-author">\u2014 ' + c.creatorName + '</p>' +
+                        '</div>';
+                }
+                if (!c.completionVideoUrl && !c.thankYouMessage && isCreator) {
+                    html += '<div class="completion-pending">' +
+                        '<p>\uD83C\uDFC6 \u00a1Tu reto se ha completado! A\u00f1ade un video de logro y un mensaje de agradecimiento.</p>' +
+                        '<button class="btn btn-success" id="addCompletionBtn">\uD83C\uDFA5 A\u00f1adir Video de Logro</button>' +
+                        '</div>';
+                }
+                if (c.completionVideoUrl || c.thankYouMessage) {
+                    if (isCreator) {
+                        html += '<button class="btn btn-outline btn-sm" id="editCompletionBtn" style="margin-top:0.5rem">\u270F Editar Video / Agradecimiento</button>';
+                    }
+                }
+            } else if (isCompleted && !hasDonated && !isAdmin && !isCreator) {
+                html += '<div class="completion-locked">' +
+                    '<p>\uD83D\uDD12 El video de logro es exclusivo para apoyadores del reto.</p>' +
+                    '</div>';
             }
 
             if (donations.length > 0) {
@@ -622,6 +743,20 @@ function openDetail(challengeId) {
                 });
             }
 
+            var addCompletionBtn = document.getElementById('addCompletionBtn');
+            if (addCompletionBtn) {
+                addCompletionBtn.addEventListener('click', function () {
+                    abrirCompletionModal(c.id, c.completionVideoUrl, c.thankYouMessage, modal);
+                });
+            }
+
+            var editCompletionBtn = document.getElementById('editCompletionBtn');
+            if (editCompletionBtn) {
+                editCompletionBtn.addEventListener('click', function () {
+                    abrirCompletionModal(c.id, c.completionVideoUrl, c.thankYouMessage, modal);
+                });
+            }
+
             if (estado) estado.textContent = '';
         })
         .catch(function (error) {
@@ -640,11 +775,16 @@ function openDonate(challengeId, title) {
 }
 
 function cargarRetos() {
-    const grid = document.getElementById('challengesGrid');
+    const activeGrid = document.getElementById('activeChallengesGrid');
+    const completedGrid = document.getElementById('completedChallengesGrid');
     const estado = document.getElementById('estado');
 
-    if (!grid) return;
-    grid.innerHTML = '';
+    if (!activeGrid && !completedGrid) {
+        var grid = document.getElementById('challengesGrid');
+        if (!grid) return;
+    }
+    if (activeGrid) activeGrid.innerHTML = '';
+    if (completedGrid) completedGrid.innerHTML = '';
     if (estado) estado.textContent = 'Cargando retos...';
 
     var userId = getUserId();
@@ -662,13 +802,52 @@ function cargarRetos() {
             }
 
             if (data.total === 0) {
-                grid.innerHTML = '<div class="estado">No hay retos disponibles a\u00fan. \u00a1S\u00e9 el primero en crear uno!</div>';
+                if (activeGrid) {
+                    activeGrid.innerHTML = '<div class="estado">No hay retos disponibles a\u00fan. \u00a1S\u00e9 el primero en crear uno!</div>';
+                }
                 return;
             }
 
+            var activeList = [];
+            var completedList = [];
+
             data.resultados.forEach(function (challenge) {
-                grid.appendChild(createChallengeCard(challenge));
+                if (challenge.status === 'completed') {
+                    completedList.push(challenge);
+                } else {
+                    activeList.push(challenge);
+                }
             });
+
+            if (activeGrid) {
+                if (activeList.length === 0) {
+                    activeGrid.innerHTML = '<div class="estado">No hay retos activos en este momento.</div>';
+                } else {
+                    activeList.forEach(function (ch) {
+                        activeGrid.appendChild(createChallengeCard(ch));
+                    });
+                }
+            }
+
+            if (completedGrid) {
+                var completedHeading = document.getElementById('completedHeading');
+                if (completedHeading) {
+                    completedHeading.style.display = completedList.length > 0 ? '' : 'none';
+                }
+                if (completedList.length === 0) {
+                    completedGrid.innerHTML = '';
+                } else {
+                    completedList.forEach(function (ch) {
+                        completedGrid.appendChild(createChallengeCard(ch));
+                    });
+                }
+            }
+
+            if (!activeGrid && !completedGrid && document.getElementById('challengesGrid')) {
+                data.resultados.forEach(function (ch) {
+                    document.getElementById('challengesGrid').appendChild(createChallengeCard(ch));
+                });
+            }
 
             var pendingId = sessionStorage.getItem('pendingChallengeId');
             if (pendingId) {
@@ -680,7 +859,7 @@ function cargarRetos() {
         })
         .catch(function (error) {
             if (estado) estado.textContent = '';
-            grid.innerHTML = '<div class="resultado error">' + error.message + '</div>';
+            if (activeGrid) activeGrid.innerHTML = '<div class="resultado error">' + error.message + '</div>';
         });
 }
 
@@ -981,21 +1160,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('reportModal').classList.add('hidden');
     });
 
-    document.getElementById('closeAdmin')?.addEventListener('click', function () {
-        document.getElementById('adminModal').classList.add('hidden');
-    });
-
-    document.querySelectorAll('.admin-tab').forEach(function (tab) {
-        tab.addEventListener('click', function () {
-            document.querySelectorAll('.admin-tab').forEach(function (t) { t.classList.remove('active'); });
-            tab.classList.add('active');
-            var tabName = tab.dataset.tab;
-            if (tabName === 'reports') cargarReportesAdmin();
-            else if (tabName === 'banned') cargarBaneadosAdmin();
-            else if (tabName === 'notifications') cargarAccionesAdmin();
-        });
-    });
-
     document.getElementById('detailModal')?.addEventListener('click', function (e) {
         if (e.target === this) this.classList.add('hidden');
     });
@@ -1005,10 +1169,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.getElementById('reportModal')?.addEventListener('click', function (e) {
-        if (e.target === this) this.classList.add('hidden');
-    });
-
-    document.getElementById('adminModal')?.addEventListener('click', function (e) {
         if (e.target === this) this.classList.add('hidden');
     });
 });

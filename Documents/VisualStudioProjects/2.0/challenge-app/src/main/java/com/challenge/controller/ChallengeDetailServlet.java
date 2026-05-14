@@ -64,6 +64,11 @@ public class ChallengeDetailServlet extends HttpServlet {
             respuesta.put("ok", true);
             respuesta.put("challenge", challenge);
             respuesta.put("donations", donations);
+            if (userId != null) {
+                respuesta.put("hasDonated", challenge.isHasDonated());
+            } else {
+                respuesta.put("hasDonated", false);
+            }
 
             response.getWriter().write(gson.toJson(respuesta));
 

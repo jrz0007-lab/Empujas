@@ -44,9 +44,12 @@ public class DatabaseInitializer implements ServletContextListener {
 
             try { stmt.executeUpdate("ALTER TABLE challenges ADD COLUMN image_url VARCHAR(500)"); } catch (Exception ignored) {}
             try { stmt.executeUpdate("ALTER TABLE challenges ADD COLUMN video_url VARCHAR(500)"); } catch (Exception ignored) {}
+            try { stmt.executeUpdate("ALTER TABLE challenges ADD COLUMN completion_video_url TEXT"); } catch (Exception ignored) {}
+            try { stmt.executeUpdate("ALTER TABLE challenges ADD COLUMN thank_you_message TEXT"); } catch (Exception ignored) {}
             try { stmt.executeUpdate("ALTER TABLE users ADD COLUMN is_admin TINYINT(1) DEFAULT 0"); } catch (Exception ignored) {}
             try { stmt.executeUpdate("ALTER TABLE users ADD COLUMN banned TINYINT(1) DEFAULT 0"); } catch (Exception ignored) {}
             try { stmt.executeUpdate("ALTER TABLE users ADD COLUMN ban_reason TEXT DEFAULT NULL"); } catch (Exception ignored) {}
+            try { stmt.executeUpdate("ALTER TABLE donations ADD COLUMN user_id INT DEFAULT NULL"); } catch (Exception ignored) {}
 
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS favorites (" +
                 "id INT AUTO_INCREMENT PRIMARY KEY, " +
@@ -98,15 +101,15 @@ public class DatabaseInitializer implements ServletContextListener {
                     "(3, 'Read 20 books in 6 months', 'I commit to reading 20 books in 6 months and writing a review for each one. Help me build my home library!', 200.00, 150.00, 1, 'active', NULL)");
             }
 
-            stmt.executeUpdate("INSERT IGNORE INTO donations (id, challenge_id, donor_name, amount) VALUES " +
-                "(1, 1, 'Alice', 50.00), " +
-                "(2, 1, 'Bob', 100.00), " +
-                "(3, 1, 'Charlie', 170.00), " +
-                "(4, 2, 'Diana', 100.00), " +
-                "(5, 2, 'Eve', 200.00), " +
-                "(6, 2, 'Frank', 150.00), " +
-                "(7, 3, 'Grace', 75.00), " +
-                "(8, 3, 'Heidi', 75.00)");
+            stmt.executeUpdate("INSERT IGNORE INTO donations (id, challenge_id, donor_name, amount, user_id) VALUES " +
+                "(1, 1, 'Alice', 50.00, NULL), " +
+                "(2, 1, 'Bob', 100.00, NULL), " +
+                "(3, 1, 'Charlie', 170.00, NULL), " +
+                "(4, 2, 'Diana', 100.00, NULL), " +
+                "(5, 2, 'Eve', 200.00, NULL), " +
+                "(6, 2, 'Frank', 150.00, NULL), " +
+                "(7, 3, 'Grace', 75.00, NULL), " +
+                "(8, 3, 'Heidi', 75.00, NULL)");
         } catch (Exception e) {
             event.getServletContext().log("DatabaseInitializer: error initializing schema", e);
         }

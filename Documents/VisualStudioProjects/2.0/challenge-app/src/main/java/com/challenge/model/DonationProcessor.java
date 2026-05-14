@@ -13,11 +13,44 @@ public class DonationProcessor {
             con = ConexionBD.getConnection();
             con.setAutoCommit(false);
 
-            String insertDonacion = "INSERT INTO donations (challenge_id, donor_name, amount) VALUES (?, ?, ?)";
+            if (amount < 1) {
+                throw new RuntimeException("La donación mínima es de 1€");
+            }
+
+            String checkCapSql = "SELECT current_amount, goal_amount, creator_id FROM challenges WHERE id = ? FOR UPDATE";
+            double currentAmount;
+            double goalAmount;
+            int creatorId;
+            try (PreparedStatement ps = con.prepareStatement(checkCapSql)) {
+                ps.setInt(1, challengeId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        throw new RuntimeException("Reto no encontrado");
+                    }
+                    currentAmount = rs.getDouble("current_amount");
+                    goalAmount = rs.getDouble("goal_amount");
+                    creatorId = rs.getInt("creator_id");
+                }
+            }
+
+            if (userId != null && userId == creatorId) {
+                throw new RuntimeException("No puedes donar a tu propio reto");
+            }
+
+            if (currentAmount + amount > goalAmount) {
+                throw new RuntimeException("El reto ya ha alcanzado su meta de " + String.format("%.2f", goalAmount) + "€. No se aceptan más donaciones.");
+            }
+
+            String insertDonacion = "INSERT INTO donations (challenge_id, donor_name, amount, user_id) VALUES (?, ?, ?, ?)";
             try (PreparedStatement ps = con.prepareStatement(insertDonacion)) {
                 ps.setInt(1, challengeId);
                 ps.setString(2, donorName);
                 ps.setDouble(3, amount);
+                if (userId != null && userId > 0) {
+                    ps.setInt(4, userId);
+                } else {
+                    ps.setNull(4, java.sql.Types.INTEGER);
+                }
                 ps.executeUpdate();
             }
 

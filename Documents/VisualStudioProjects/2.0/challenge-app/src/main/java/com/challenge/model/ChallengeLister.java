@@ -15,6 +15,9 @@ public class ChallengeLister {
                 + (userId != null
                     ? "(SELECT COUNT(*) FROM favorites WHERE challenge_id = c.id AND user_id = " + userId + ") AS is_fav "
                     : "0 AS is_fav ")
+                + (userId != null
+                    ? ", (SELECT COUNT(*) FROM donations WHERE challenge_id = c.id AND user_id = " + userId + ") AS has_donated "
+                    : ", 0 AS has_donated ")
                 + "FROM challenges c JOIN users u ON c.creator_id = u.id "
                 + "ORDER BY c.created_at DESC";
 
@@ -44,6 +47,9 @@ public class ChallengeLister {
                 + (userId != null
                     ? "(SELECT COUNT(*) FROM favorites WHERE challenge_id = c.id AND user_id = " + userId + ") AS is_fav "
                     : "0 AS is_fav ")
+                + (userId != null
+                    ? ", (SELECT COUNT(*) FROM donations WHERE challenge_id = c.id AND user_id = " + userId + ") AS has_donated "
+                    : ", 0 AS has_donated ")
                 + "FROM challenges c JOIN users u ON c.creator_id = u.id "
                 + "WHERE c.creator_id = ? ORDER BY c.created_at DESC";
 
@@ -72,6 +78,9 @@ public class ChallengeLister {
                 + (userId != null
                     ? "(SELECT COUNT(*) FROM favorites WHERE challenge_id = c.id AND user_id = " + userId + ") AS is_fav "
                     : "0 AS is_fav ")
+                + (userId != null
+                    ? ", (SELECT COUNT(*) FROM donations WHERE challenge_id = c.id AND user_id = " + userId + ") AS has_donated "
+                    : ", 0 AS has_donated ")
                 + "FROM challenges c JOIN users u ON c.creator_id = u.id "
                 + "WHERE c.status = ? ORDER BY c.created_at DESC";
 
@@ -101,7 +110,8 @@ public class ChallengeLister {
         List<Challenge> lista = new ArrayList<>();
         String sql = "SELECT c.*, u.username AS creator_name, "
                 + "(SELECT COUNT(*) FROM donations WHERE challenge_id = c.id) AS supporter_count, "
-                + "1 AS is_fav "
+                + "1 AS is_fav, "
+                + "(SELECT COUNT(*) FROM donations WHERE challenge_id = c.id AND user_id = " + userId + ") AS has_donated "
                 + "FROM challenges c JOIN users u ON c.creator_id = u.id "
                 + "JOIN favorites f ON f.challenge_id = c.id "
                 + "WHERE f.user_id = ? ORDER BY f.created_at DESC";
@@ -137,8 +147,11 @@ public class ChallengeLister {
         c.setCreatedAt(rs.getString("created_at"));
         c.setSupporterCount(rs.getInt("supporter_count"));
         c.setFavorited(rs.getInt("is_fav") > 0);
+        c.setHasDonated(rs.getInt("has_donated") > 0);
         try { c.setVideoUrl(rs.getString("video_url")); } catch (Exception ignored) {}
         try { c.setImageUrl(rs.getString("image_url")); } catch (Exception ignored) {}
+        try { c.setCompletionVideoUrl(rs.getString("completion_video_url")); } catch (Exception ignored) {}
+        try { c.setThankYouMessage(rs.getString("thank_you_message")); } catch (Exception ignored) {}
         return c;
     }
 }

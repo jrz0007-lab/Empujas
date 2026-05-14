@@ -18,6 +18,9 @@ public class ChallengeFinder {
                 + (userId != null
                     ? "(SELECT COUNT(*) FROM favorites WHERE challenge_id = c.id AND user_id = " + userId + ") AS is_fav "
                     : "0 AS is_fav ")
+                + (userId != null
+                    ? ", (SELECT COUNT(*) FROM donations WHERE challenge_id = c.id AND user_id = " + userId + ") AS has_donated "
+                    : ", 0 AS has_donated ")
                 + "FROM challenges c JOIN users u ON c.creator_id = u.id "
                 + "WHERE c.id = ?";
 
@@ -40,8 +43,11 @@ public class ChallengeFinder {
                     c.setCreatedAt(rs.getString("created_at"));
                     c.setSupporterCount(rs.getInt("supporter_count"));
                     c.setFavorited(rs.getInt("is_fav") > 0);
+                    c.setHasDonated(rs.getInt("has_donated") > 0);
                     try { c.setVideoUrl(rs.getString("video_url")); } catch (Exception ignored) {}
                     try { c.setImageUrl(rs.getString("image_url")); } catch (Exception ignored) {}
+                    try { c.setCompletionVideoUrl(rs.getString("completion_video_url")); } catch (Exception ignored) {}
+                    try { c.setThankYouMessage(rs.getString("thank_you_message")); } catch (Exception ignored) {}
                     return c;
                 }
             }
@@ -70,6 +76,7 @@ public class ChallengeFinder {
                     d.setDonorName(rs.getString("donor_name"));
                     d.setAmount(rs.getDouble("amount"));
                     d.setCreatedAt(rs.getString("created_at"));
+                    try { d.setUserId(rs.getObject("user_id") != null ? rs.getInt("user_id") : null); } catch (Exception ignored) {}
                     lista.add(d);
                 }
             }

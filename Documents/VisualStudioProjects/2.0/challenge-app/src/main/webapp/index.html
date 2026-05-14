@@ -36,7 +36,9 @@
             <div class="container">
                 <h2>&#11015;&#65039;&#11015;&#65039;&#11015;&#65039; Retos Activos &#11015;&#65039;&#11015;&#65039;&#11015;&#65039;</h2>
                 <div id="estado" class="estado"></div>
-                <div id="challengesGrid" class="challenges-grid"></div>
+                <div id="activeChallengesGrid" class="challenges-grid"></div>
+                <h2 id="completedHeading" style="margin-top:3rem">&#9989; Retos Completados</h2>
+                <div id="completedChallengesGrid" class="challenges-grid"></div>
             </div>
         </section>
     </main>
@@ -151,21 +153,6 @@
                 </div>
             </form>
             <div id="reasonResultado" class="donate-resultado"></div>
-        </div>
-    </div>
-
-    <div id="adminModal" class="modal-overlay hidden">
-        <div class="modal-content modal-lg">
-            <button class="modal-close" id="closeAdmin">&times;</button>
-            <div id="adminContent">
-                <h2>&#128737; Panel de Administraci&oacute;n</h2>
-                <div class="admin-tabs">
-                    <button class="admin-tab active" data-tab="reports">&#128681; Reportes</button>
-                    <button class="admin-tab" data-tab="banned">&#128274; Baneados</button>
-                    <button class="admin-tab" data-tab="notifications">&#128231; Notificaciones</button>
-                </div>
-                <div id="adminTabContent" class="admin-tab-content"></div>
-            </div>
         </div>
     </div>
 

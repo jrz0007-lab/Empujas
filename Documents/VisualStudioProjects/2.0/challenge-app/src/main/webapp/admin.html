@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - EMpujas</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <span class="logo-icon">&#9878;</span>
+                <span class="logo-text">EMpujas</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="dashboard.html" class="btn btn-outline">&#128202; Mi Panel</a>
+                <a href="/" class="btn btn-outline">&#127968; Inicio</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container admin-page">
+        <div class="page-header">
+            <h1>&#128737; Panel de Administraci&oacute;n</h1>
+            <p class="header-subtitle">Gestiona reportes, usuarios baneados y notificaciones</p>
+        </div>
+
+        <div class="admin-search">
+            <input type="text" id="adminSearchInput" placeholder="&#128270; Buscar usuario por nombre o email..." class="search-input">
+        </div>
+
+        <div class="admin-tabs">
+            <button class="admin-tab active" data-tab="reports">&#128681; Reportes</button>
+            <button class="admin-tab" data-tab="banned">&#128274; Baneados</button>
+            <button class="admin-tab" data-tab="notifications">&#128231; Notificaciones</button>
+        </div>
+
+        <div id="adminTabContent" class="admin-tab-content">
+            <p class="estado">Cargando...</p>
+        </div>
+    </main>
+
+    <div id="reasonModal" class="modal-overlay hidden">
+        <div class="modal-content modal-sm">
+            <h3 id="reasonModalTitle">&#128681; Motivo Obligatorio</h3>
+            <p id="reasonModalDesc" class="donate-subtitle"></p>
+            <form id="reasonForm">
+                <div class="form-group">
+                    <label for="reasonInput">Explica el motivo:</label>
+                    <textarea id="reasonInput" placeholder="Escribe el motivo de esta acci&oacute;n..." rows="4" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="cancelReason">Cancelar</button>
+                    <button type="submit" class="btn btn-danger" id="confirmReason">&#128680; Confirmar</button>
+                </div>
+            </form>
+            <div id="reasonResultado" class="donate-resultado"></div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS challenges (
     status ENUM('active', 'completed') DEFAULT 'active',
     video_url VARCHAR(500),
     image_url VARCHAR(500),
+    completion_video_url TEXT DEFAULT NULL,
+    thank_you_message TEXT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -31,8 +33,10 @@ CREATE TABLE IF NOT EXISTS donations (
     challenge_id INT NOT NULL,
     donor_name VARCHAR(100) NOT NULL,
     amount DECIMAL(10,2) NOT NULL,
+    user_id INT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (challenge_id) REFERENCES challenges(id) ON DELETE CASCADE
+    FOREIGN KEY (challenge_id) REFERENCES challenges(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS favorites (

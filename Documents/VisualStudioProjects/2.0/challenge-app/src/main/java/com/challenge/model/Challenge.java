@@ -11,9 +11,12 @@ public class Challenge {
     private String status;
     private String videoUrl;
     private String imageUrl;
+    private String completionVideoUrl;
+    private String thankYouMessage;
     private String createdAt;
     private int supporterCount;
     private boolean favorited;
+    private boolean hasDonated;
 
     public Challenge() {
     }
@@ -38,12 +41,18 @@ public class Challenge {
     public void setVideoUrl(String videoUrl) { this.videoUrl = videoUrl; }
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public String getCompletionVideoUrl() { return completionVideoUrl; }
+    public void setCompletionVideoUrl(String completionVideoUrl) { this.completionVideoUrl = completionVideoUrl; }
+    public String getThankYouMessage() { return thankYouMessage; }
+    public void setThankYouMessage(String thankYouMessage) { this.thankYouMessage = thankYouMessage; }
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
     public int getSupporterCount() { return supporterCount; }
     public void setSupporterCount(int supporterCount) { this.supporterCount = supporterCount; }
     public boolean isFavorited() { return favorited; }
     public void setFavorited(boolean favorited) { this.favorited = favorited; }
+    public boolean isHasDonated() { return hasDonated; }
+    public void setHasDonated(boolean hasDonated) { this.hasDonated = hasDonated; }
 
     public double getProgressPercent() {
         if (goalAmount <= 0) return 0;

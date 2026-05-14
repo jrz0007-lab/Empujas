@@ -55,14 +55,21 @@ public class DonateServlet extends HttpServlet {
                 return;
             }
 
+            if (amount < 1) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                Map<String, Object> error = new HashMap<>();
+                error.put("ok", false);
+                error.put("mensaje", "La donación mínima es de 1€");
+                response.getWriter().write(gson.toJson(error));
+                return;
+            }
+
             if (userId != null && userManager.estaBaneado(userId)) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-
                 Map<String, Object> error = new HashMap<>();
                 error.put("ok", false);
                 error.put("banned", true);
                 error.put("mensaje", "Tu cuenta ha sido baneada. No puedes donar.");
-
                 response.getWriter().write(gson.toJson(error));
                 return;
             }

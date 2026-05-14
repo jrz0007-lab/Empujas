@@ -5,6 +5,7 @@ public class Donation {
     private int challengeId;
     private String donorName;
     private double amount;
+    private Integer userId;
     private String createdAt;
 
     public Donation() {
@@ -18,6 +19,8 @@ public class Donation {
     public void setDonorName(String donorName) { this.donorName = donorName; }
     public double getAmount() { return amount; }
     public void setAmount(double amount) { this.amount = amount; }
+    public Integer getUserId() { return userId; }
+    public void setUserId(Integer userId) { this.userId = userId; }
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 }

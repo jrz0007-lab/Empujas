@@ -1375,3 +1375,200 @@ body.auth-page {
         grid-template-columns: 1fr;
     }
 }
+
+.admin-page .page-header {
+    margin-bottom: 1.5rem;
+}
+
+.admin-search {
+    margin-bottom: 1.5rem;
+}
+
+.search-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 0.9375rem;
+    transition: all 0.2s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #7C3AED;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+
+.admin-table-container {
+    overflow-x: auto;
+    background: #ffffff;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.admin-table thead {
+    background: #f9fafb;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.admin-table th {
+    padding: 0.875rem 1rem;
+    text-align: left;
+    font-weight: 700;
+    color: #374151;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.admin-table td {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    color: #4b5563;
+    vertical-align: top;
+}
+
+.admin-table tbody tr:hover {
+    background: #faf5ff;
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-table .cell-id {
+    font-weight: 700;
+    color: #7c3aed;
+    white-space: nowrap;
+}
+
+.admin-table .cell-title {
+    font-weight: 600;
+    color: #1f2937;
+    min-width: 150px;
+}
+
+.admin-table .cell-email {
+    font-size: 0.8125rem;
+    color: #9ca3af;
+}
+
+.admin-table .cell-reason {
+    min-width: 200px;
+    max-width: 300px;
+}
+
+.admin-table .cell-date {
+    white-space: nowrap;
+    font-size: 0.8125rem;
+    color: #9ca3af;
+}
+
+.admin-table .cell-actions {
+    white-space: nowrap;
+}
+
+.admin-table .cell-type {
+    font-weight: 600;
+}
+
+.admin-table .cell-user {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.user-avatar-sm {
+    font-size: 1rem;
+    margin-right: 0.25rem;
+}
+
+.admin-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6b7280;
+    font-size: 1.1rem;
+    background: #ffffff;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+}
+
+.thank-you-message {
+    background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+    border: 1px solid #bbf7d0;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.thank-you-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.thank-you-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #065f46;
+    font-style: italic;
+}
+
+.thank-you-author {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    color: #047857;
+    font-weight: 600;
+}
+
+.completion-pending {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border: 1px solid #fde68a;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.completion-pending p {
+    margin-bottom: 0.75rem;
+    color: #92400e;
+    font-weight: 500;
+}
+
+.completion-locked {
+    background: linear-gradient(135deg, #f3f4f6, #f9fafb);
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.admin-page .admin-tabs {
+    margin-top: 0;
+}
+
+@media (max-width: 768px) {
+    .admin-table {
+        font-size: 0.8125rem;
+    }
+    .admin-table th,
+    .admin-table td {
+        padding: 0.625rem 0.75rem;
+    }
+    .admin-table .cell-reason {
+        min-width: 120px;
+        max-width: 200px;
+    }
+}
