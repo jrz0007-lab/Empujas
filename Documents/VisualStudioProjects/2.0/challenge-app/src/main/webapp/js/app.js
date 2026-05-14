@@ -777,15 +777,13 @@ function openDonate(challengeId, title) {
 function cargarRetos() {
     const activeGrid = document.getElementById('activeChallengesGrid');
     const completedGrid = document.getElementById('completedChallengesGrid');
-    const estado = document.getElementById('estado');
 
     if (!activeGrid && !completedGrid) {
         var grid = document.getElementById('challengesGrid');
         if (!grid) return;
     }
-    if (activeGrid) activeGrid.innerHTML = '';
+    if (activeGrid) activeGrid.innerHTML = '<div class="estado">Cargando retos...</div>';
     if (completedGrid) completedGrid.innerHTML = '';
-    if (estado) estado.textContent = 'Cargando retos...';
 
     var userId = getUserId();
     var url = API_BASE + '/api/challenges';
@@ -796,7 +794,6 @@ function cargarRetos() {
             return response.json();
         })
         .then(function (data) {
-            if (estado) estado.textContent = '';
             if (!data.ok) {
                 throw new Error(data.mensaje || 'Error al cargar retos');
             }
@@ -820,6 +817,7 @@ function cargarRetos() {
             });
 
             if (activeGrid) {
+                activeGrid.innerHTML = '';
                 if (activeList.length === 0) {
                     activeGrid.innerHTML = '<div class="estado">No hay retos activos en este momento.</div>';
                 } else {
@@ -834,9 +832,8 @@ function cargarRetos() {
                 if (completedHeading) {
                     completedHeading.style.display = completedList.length > 0 ? '' : 'none';
                 }
-                if (completedList.length === 0) {
-                    completedGrid.innerHTML = '';
-                } else {
+                completedGrid.innerHTML = '';
+                if (completedList.length > 0) {
                     completedList.forEach(function (ch) {
                         completedGrid.appendChild(createChallengeCard(ch));
                     });
@@ -858,7 +855,6 @@ function cargarRetos() {
             }
         })
         .catch(function (error) {
-            if (estado) estado.textContent = '';
             if (activeGrid) activeGrid.innerHTML = '<div class="resultado error">' + error.message + '</div>';
         });
 }
