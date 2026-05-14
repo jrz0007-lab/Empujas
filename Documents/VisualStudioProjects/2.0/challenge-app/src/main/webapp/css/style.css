@@ -1279,8 +1279,8 @@ body.auth-page {
     padding: 0.625rem 1.25rem;
     border: 2px solid #7C3AED;
     border-radius: 0.5rem;
-    background: transparent;
-    color: #7C3AED;
+    background: #7C3AED;
+    color: #ffffff;
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
@@ -1288,13 +1288,16 @@ body.auth-page {
 }
 
 .admin-tab:hover {
-    background: rgba(124, 58, 237, 0.08);
+    background: #6D28D9;
+    border-color: #6D28D9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
 }
 
 .admin-tab.active {
-    background: #7C3AED;
-    color: #ffffff;
-    border-color: #7C3AED;
+    background: #5B21B6;
+    border-color: #5B21B6;
+    box-shadow: 0 4px 12px rgba(91, 33, 182, 0.4);
 }
 
 .admin-tab-content {
