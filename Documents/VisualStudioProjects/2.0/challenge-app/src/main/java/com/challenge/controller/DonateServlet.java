@@ -87,8 +87,11 @@ public class DonateServlet extends HttpServlet {
 
             Map<String, Object> error = new HashMap<>();
             error.put("ok", false);
-            error.put("mensaje", "Error al procesar donación");
-            error.put("detalle", e.getMessage());
+            String mensaje = e.getMessage();
+            if (e.getCause() != null && "Error al procesar donacion".equals(mensaje)) {
+                mensaje = e.getCause().getMessage();
+            }
+            error.put("mensaje", mensaje);
 
             response.getWriter().write(gson.toJson(error));
         }
