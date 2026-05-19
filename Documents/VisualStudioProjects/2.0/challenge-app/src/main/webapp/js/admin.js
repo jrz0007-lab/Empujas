@@ -39,10 +39,14 @@ document.addEventListener('DOMContentLoaded', function () {
     updateNavbar();
     cargarReportesAdmin();
 
-    document.querySelectorAll('.admin-tab').forEach(function (tab) {
+    document.querySelectorAll('.admin-tabs .btn').forEach(function (tab) {
         tab.addEventListener('click', function () {
-            document.querySelectorAll('.admin-tab').forEach(function (t) { t.classList.remove('active'); });
-            tab.classList.add('active');
+            document.querySelectorAll('.admin-tabs .btn').forEach(function (t) {
+                t.classList.remove('btn-primary');
+                t.classList.add('btn-outline');
+            });
+            tab.classList.remove('btn-outline');
+            tab.classList.add('btn-primary');
             var tabName = tab.dataset.tab;
             if (tabName === 'reports') cargarReportesAdmin();
             else if (tabName === 'banned') cargarBaneadosAdmin();
@@ -53,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var searchInput = document.getElementById('adminSearchInput');
     if (searchInput) {
         searchInput.addEventListener('input', function () {
-            var activeTab = document.querySelector('.admin-tab.active');
+            var activeTab = document.querySelector('.admin-tabs .btn-primary');
             if (activeTab && activeTab.dataset.tab === 'banned') {
                 filtrarBaneados(this.value.trim().toLowerCase());
             }
