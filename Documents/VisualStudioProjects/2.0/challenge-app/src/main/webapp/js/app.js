@@ -320,8 +320,8 @@ function createChallengeCard(challenge) {
     var adminActions = '';
     if (isAdmin) {
         adminActions = '\n        <div class="admin-actions">\n' +
-            '            <button class="btn btn-danger btn-sm delete-challenge" data-id="' + challenge.id + '" data-creator="' + challenge.creatorName + '">\uD83D\uDDD1 Eliminar Reto</button>\n' +
-            '            <button class="btn btn-outline-danger btn-sm ban-creator" data-creator-id="' + challenge.creatorId + '" data-creator-name="' + challenge.creatorName + '">\uD83D\uDEAB Banear ' + challenge.creatorName + '</button>\n' +
+            '            <button class="btn btn-danger delete-challenge" data-id="' + challenge.id + '" data-creator="' + challenge.creatorName + '">\uD83D\uDDD1 Eliminar</button>\n' +
+            '            <button class="btn btn-outline-danger ban-creator" data-creator-id="' + challenge.creatorId + '" data-creator-name="' + challenge.creatorName + '">\uD83D\uDEAB Banear</button>\n' +
             '        </div>';
     }
 
@@ -697,8 +697,10 @@ function openDetail(challengeId) {
 
             if (isAdmin) {
                 html += '<div class="admin-actions-panel">';
-                html += '<button class="btn btn-danger btn-full" id="detailDeleteBtn">\uD83D\uDDD1 Eliminar este Reto</button>';
-                html += '<button class="btn btn-outline-danger btn-full" id="detailBanBtn" style="margin-top:0.5rem">\uD83D\uDEAB Banear a ' + c.creatorName + '</button>';
+                html += '<div class="admin-actions">';
+                html += '<button class="btn btn-danger" id="detailDeleteBtn">\uD83D\uDDD1 Eliminar</button>';
+                html += '<button class="btn btn-outline-danger" id="detailBanBtn">\uD83D\uDEAB Banear</button>';
+                html += '</div>';
                 html += '</div>';
             } else if (!isCompleted && !isCreator) {
                 html += '<button class="btn btn-primary btn-full" id="detailSupportBtn">\uD83D\uDCB0 Apoyar este Reto</button>';

@@ -1237,16 +1237,14 @@ body.auth-page {
 
 .admin-actions .btn {
     flex: 1;
+    font-size: 0.8125rem;
+    padding: 0.5rem 0.75rem;
 }
 
 .admin-actions-panel {
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 2px solid #fee2e2;
-}
-
-.admin-actions-panel .btn {
-    margin-bottom: 0.5rem;
 }
 
 .btn-shield {
