@@ -420,7 +420,8 @@ body.auth-page {
     flex-wrap: wrap;
 }
 
-.challenge-actions .btn {
+.challenge-actions .btn,
+.admin-actions .btn {
     flex: 1;
     font-size: 0.8125rem;
     padding: 0.5rem 0.75rem;
@@ -1230,15 +1231,7 @@ body.auth-page {
 .admin-actions {
     display: flex;
     gap: 0.5rem;
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid #fee2e2;
-}
-
-.admin-actions .btn {
-    flex: 1;
-    font-size: 0.8125rem;
-    padding: 0.5rem 0.75rem;
+    margin-top: 0.5rem;
 }
 
 .admin-actions-panel {
