@@ -319,10 +319,9 @@ function createChallengeCard(challenge) {
 
     var adminActions = '';
     if (isAdmin) {
-        adminActions = '\n        <div class="admin-actions">\n' +
-            '            <button class="btn btn-danger delete-challenge" data-id="' + challenge.id + '" data-creator="' + challenge.creatorName + '">\uD83D\uDDD1 Eliminar</button>\n' +
-            '            <button class="btn btn-outline-danger ban-creator" data-creator-id="' + challenge.creatorId + '" data-creator-name="' + challenge.creatorName + '">\uD83D\uDEAB Banear</button>\n' +
-            '        </div>';
+        adminActions = '\n' +
+            '            <button class="btn btn-outline delete-challenge" data-id="' + challenge.id + '" data-creator="' + challenge.creatorName + '">\uD83D\uDDD1 Eliminar</button>\n' +
+            '            <button class="btn btn-primary ban-creator" data-creator-id="' + challenge.creatorId + '" data-creator-name="' + challenge.creatorName + '">\uD83D\uDEAB Bloquear</button>\n';
     }
 
     var reportBtn = '';
@@ -351,14 +350,14 @@ function createChallengeCard(challenge) {
         '            <span class="challenge-status ' + (isCompleted ? 'status-completed' : 'status-active') + '">' + statusEmoji + ' ' + statusText + '</span>\n' +
         '        </div>\n' +
         '        <div class="challenge-actions">\n' +
-        '            <button class="btn btn-outline view-detail">\uD83D\uDC41 Ver Detalles</button>\n' +
+        '            <button class="btn btn-outline view-detail-btn">\uD83D\uDC41 Ver Detalles</button>\n' +
         '            ' + (isCompleted ? '<button class="btn btn-success view-completed">\uD83C\uDFC6 Ver Logro</button>' : (userId && parseInt(userId) === challenge.creatorId ? '' : '<button class="btn btn-primary support-btn">\uD83D\uDCB0 Apoyar</button>')) + '\n' +
         '            ' + reportBtn + '\n' +
-        '        </div>\n' +
         adminActions +
+        '        </div>\n' +
         '    ';
 
-    card.querySelector('.view-detail').addEventListener('click', function () {
+    card.querySelector('.view-detail-btn').addEventListener('click', function () {
         openDetail(challenge.id);
     });
 
@@ -697,9 +696,9 @@ function openDetail(challengeId) {
 
             if (isAdmin) {
                 html += '<div class="admin-actions-panel">';
-                html += '<div class="admin-actions">';
-                html += '<button class="btn btn-danger" id="detailDeleteBtn">\uD83D\uDDD1 Eliminar</button>';
-                html += '<button class="btn btn-outline-danger" id="detailBanBtn">\uD83D\uDEAB Banear</button>';
+                html += '<div class="challenge-actions">';
+                html += '<button class="btn btn-outline" id="detailDeleteBtn">\uD83D\uDDD1 Eliminar</button>';
+                html += '<button class="btn btn-primary" id="detailBanBtn">\uD83D\uDEAB Bloquear</button>';
                 html += '</div>';
                 html += '</div>';
             } else if (!isCompleted && !isCreator) {

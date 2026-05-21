@@ -420,8 +420,7 @@ body.auth-page {
     flex-wrap: wrap;
 }
 
-.challenge-actions .btn,
-.admin-actions .btn {
+.challenge-actions .btn {
     flex: 1;
     font-size: 0.8125rem;
     padding: 0.5rem 0.75rem;
@@ -1226,12 +1225,6 @@ body.auth-page {
 .challenge-actions .btn-outline.report-challenge:hover {
     background: #fffbeb;
     transform: translateY(-1px);
-}
-
-.admin-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
 }
 
 .admin-actions-panel {
