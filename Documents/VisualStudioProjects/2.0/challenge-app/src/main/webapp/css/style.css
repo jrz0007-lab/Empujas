@@ -1385,26 +1385,6 @@ body.auth-page {
     margin-bottom: 1.5rem;
 }
 
-.admin-search {
-    margin-bottom: 1.5rem;
-}
-
-.search-input {
-    width: 100%;
-    max-width: 400px;
-    padding: 0.75rem 1rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
-    font-size: 0.9375rem;
-    transition: all 0.2s;
-}
-
-.search-input:focus {
-    outline: none;
-    border-color: #7C3AED;
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
-}
-
 .admin-table-container {
     overflow-x: auto;
     background: #ffffff;

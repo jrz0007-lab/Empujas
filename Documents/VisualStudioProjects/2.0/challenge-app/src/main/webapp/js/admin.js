@@ -54,18 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    var searchInput = document.getElementById('adminSearchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', function () {
-            var activeTab = document.querySelector('.admin-tabs .btn-primary');
-            if (activeTab && activeTab.dataset.tab === 'banned') {
-                filtrarBaneados(this.value.trim().toLowerCase());
-            }
-        });
-    }
 });
-
-var baneadosData = [];
 
 function cargarReportesAdmin() {
     var tabContent = document.getElementById('adminTabContent');
@@ -128,12 +117,10 @@ function cargarBaneadosAdmin() {
         .then(function (data) {
             if (!data.ok || !data.usuarios || data.usuarios.length === 0) {
                 tabContent.innerHTML = '<div class="admin-empty">&#128274; No hay usuarios baneados.</div>';
-                baneadosData = [];
                 return;
             }
 
-            baneadosData = data.usuarios;
-            renderBaneadosTable(baneadosData);
+            renderBaneadosTable(data.usuarios);
         })
         .catch(function (error) {
             console.error('Error cargando baneados:', error);
@@ -175,18 +162,6 @@ function renderBaneadosTable(usuarios) {
             }
         });
     });
-}
-
-function filtrarBaneados(query) {
-    if (!query) {
-        renderBaneadosTable(baneadosData);
-        return;
-    }
-    var filtrados = baneadosData.filter(function (u) {
-        return u.username.toLowerCase().indexOf(query) !== -1 ||
-               u.email.toLowerCase().indexOf(query) !== -1;
-    });
-    renderBaneadosTable(filtrados);
 }
 
 function cargarAccionesAdmin() {
